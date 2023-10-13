@@ -24,9 +24,12 @@ class CartCubit extends Cubit<Map<String, (Product, int)>> {
     if (quantity + pq.$2 == 0) {
       state.remove(p.id!);
     } else {
-      state[p.id!] = (p, pq.$2 - quantity);
+      state[p.id!] = (p, pq.$2 + quantity);
     }
 
     emit(Map.of(state));
   }
+
+  void increase(Product p) => changeQuantity(p, 1);
+  void decrease(Product p) => changeQuantity(p, -1);
 }

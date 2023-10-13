@@ -30,7 +30,10 @@ class ProductCard extends StatelessWidget {
             children: [
               Hero(
                   tag: pro.id ?? "",
-                  child: Image.asset("assets/img/background_login.png")),
+                  child:
+                      pro.actuallyLink != null && pro.actuallyLink!.isNotEmpty
+                          ? Image.asset(pro.actuallyLink!)
+                          : const Icon(Icons.add_rounded)),
               Padding(
                 padding: const EdgeInsets.all(defPading),
                 child: Column(

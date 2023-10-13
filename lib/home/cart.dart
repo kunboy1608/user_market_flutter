@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/cart_item.dart';
+import 'package:user_market/cart/cart_page.dart';
 import 'package:user_market/util/const.dart';
 
 class Cart extends StatefulWidget {
@@ -46,7 +47,13 @@ class _CartState extends State<Cart> {
               height: widget.height,
               width: widget.height,
               child: IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => const CartPage(),
+                      ));
+                },
                 icon: Icon(
                   CupertinoIcons.cart,
                   size: widget.height / 2,

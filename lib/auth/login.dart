@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:user_market/bloc/product_cubit.dart';
 import 'package:user_market/home/home.dart';
 import 'package:user_market/service/firebase_service.dart';
 import 'package:user_market/util/const.dart';
@@ -60,10 +58,7 @@ class _LoginState extends State<Login> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => BlocProvider(
-                create: (_) => ProductCubit({}),
-                child: const Home(),
-              ),
+              builder: (context) => const Home(),
             ));
       } else {
         setState(() {

@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:user_market/entity/product.dart';
-import 'package:user_market/home/bottom_bar.dart';
+import 'package:user_market/home/cart_bottom.dart';
 import 'package:user_market/home/product_card.dart';
 import 'package:user_market/util/const.dart';
 
@@ -30,6 +30,7 @@ class _HomeState extends State<Home> {
       p.categoryId = Random().nextInt(4);
       p.date = Timestamp.now();
       p.price = Random().nextDouble();
+      p.actuallyLink = "assets/img/background_login.png";
       return p;
     }).toList();
     _controller = ScrollController();
@@ -61,7 +62,7 @@ class _HomeState extends State<Home> {
             itemCount: _products.length,
           ),
         ),
-        bottomNavigationBar: const BottomBar(
+        bottomNavigationBar: const CartBottom(
           isHidden: false,
         ));
   }
