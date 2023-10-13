@@ -1,17 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:user_market/bloc/cart_cubit.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/string_utils.dart';
 
 class ProductDetails extends StatefulWidget {
-  const ProductDetails({super.key, required this.pro});
+  const ProductDetails({super.key, required this.pro, this.isFromCart = false});
   final Product pro;
+  final bool isFromCart;
 
   @override
   State<ProductDetails> createState() => _ProductDetailsState();
 }
 
 class _ProductDetailsState extends State<ProductDetails> {
+  String _tag = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _tag = widget.pro.id ?? "";
+    if (widget.isFromCart) {
+      _tag += "_cartItem";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +38,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.4,
               child: Hero(
-                tag: widget.pro.id ?? "",
+                tag: _tag,
                 child: ClipRRect(
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(defRadius),
@@ -58,7 +72,14 @@ class _ProductDetailsState extends State<ProductDetails> {
         ),
       ),
       bottomNavigationBar: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          context.read<CartCubit>().setOrReplace(widget.pro, 1);
+          context.read<CartCubit>().setOrReplace(widget.pro, 1);
+          setState(() {
+            _tag = "${widget.pro.id ?? ""}_cartItem";
+          });
+          Navigator.pop(context);
+        },
         child: const Text("Add to cart"),
       ),
     );

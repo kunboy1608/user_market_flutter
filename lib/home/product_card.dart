@@ -5,16 +5,11 @@ import 'package:user_market/home/product_details.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/string_utils.dart';
 
-class ProductCard extends StatefulWidget {
+class ProductCard extends StatelessWidget {
   const ProductCard({super.key, required this.pro});
 
   final Product pro;
 
-  @override
-  State<ProductCard> createState() => _ProductCardState();
-}
-
-class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -23,7 +18,7 @@ class _ProductCardState extends State<ProductCard> {
             context,
             CupertinoPageRoute(
                 builder: (_) => ProductDetails(
-                      pro: widget.pro,
+                      pro: pro,
                     )));
       },
       child: ClipRRect(
@@ -34,7 +29,7 @@ class _ProductCardState extends State<ProductCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Hero(
-                  tag: widget.pro.id ?? "",
+                  tag: pro.id ?? "",
                   child: Image.asset("assets/img/background_login.png")),
               Padding(
                 padding: const EdgeInsets.all(defPading),
@@ -42,14 +37,14 @@ class _ProductCardState extends State<ProductCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.pro.name ?? "",
+                      pro.name ?? "",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    Text(widget.pro.categoryId?.toString() ?? "",
+                    Text(pro.categoryId?.toString() ?? "",
                         maxLines: 1, overflow: TextOverflow.ellipsis),
-                    Text("Price: ${formatCurrency(widget.pro.price)}",
+                    Text("Price: ${formatCurrency(pro.price)}",
                         maxLines: 2, overflow: TextOverflow.ellipsis)
                   ],
                 ),
