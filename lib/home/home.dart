@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/cart_bottom.dart';
 import 'package:user_market/home/product_card.dart';
+import 'package:user_market/search/product_search_delegate.dart';
 import 'package:user_market/util/const.dart';
 
 class Home extends StatefulWidget {
@@ -40,11 +41,23 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("App bar"),
-          actions: const [
-            Icon(
-              CupertinoIcons.profile_circled,
-            )
+          title: GestureDetector(
+            onTap: () {},
+            child: const Row(
+              children: [Icon(CupertinoIcons.profile_circled), Text("User")],
+            ),
+          ),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  showSearch(
+                      context: context,
+                      useRootNavigator: true,
+                      delegate: ProductSearchDelegate());
+                },
+                icon: const Icon(
+                  CupertinoIcons.search,
+                ))
           ],
         ),
         body: Padding(
@@ -56,7 +69,7 @@ class _HomeState extends State<Home> {
                 crossAxisSpacing: defPading,
                 mainAxisSpacing: defPading,
                 childAspectRatio: 0.9),
-            itemBuilder: (_, index) => ProductCard(              
+            itemBuilder: (_, index) => ProductCard(
               pro: _products[index],
             ),
             itemCount: _products.length,

@@ -71,17 +71,19 @@ class _ProductDetailsState extends State<ProductDetails> {
           ],
         ),
       ),
-      bottomNavigationBar: ElevatedButton(
-        onPressed: () {
-          context.read<CartCubit>().setOrReplace(widget.pro, 1);
-          context.read<CartCubit>().setOrReplace(widget.pro, 1);
-          setState(() {
-            _tag = "${widget.pro.id ?? ""}_cartItem";
-          });
-          Navigator.pop(context);
-        },
-        child: const Text("Add to cart"),
-      ),
+      bottomNavigationBar: widget.isFromCart
+          ? null
+          : ElevatedButton(
+              onPressed: () {
+                context.read<CartCubit>().setOrReplace(widget.pro, 1);
+                context.read<CartCubit>().setOrReplace(widget.pro, 1);
+                setState(() {
+                  _tag = "${widget.pro.id ?? ""}_cartItem";
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Add to cart"),
+            ),
     );
   }
 }
