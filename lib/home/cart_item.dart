@@ -32,6 +32,7 @@ class CartItem extends StatelessWidget {
               child: product.actuallyLink != null &&
                       product.actuallyLink!.isNotEmpty
                   ? FadeInImage(
+                    fit: BoxFit.cover,
                       placeholder: const AssetImage('assets/img/loading.gif'),
                       image: FileImage(File(product.actuallyLink!)),
                     )

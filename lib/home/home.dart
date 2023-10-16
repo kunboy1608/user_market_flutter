@@ -24,7 +24,7 @@ class _HomeState extends State<Home> {
   // bool _hideCart = false;
   late ScrollController _controller;
   final _streamController = StreamController<(DocumentChangeType, Product)>();
-  // ignore: unused_field
+
   bool? _isSortedByCategory;
 
   Future<Map<String, Product>?> _loadData() async {
@@ -86,7 +86,30 @@ class _HomeState extends State<Home> {
                 },
                 icon: const Icon(
                   CupertinoIcons.search,
-                ))
+                )),
+            PopupMenuButton<bool>(
+              icon: const Icon(Icons.sort),
+              onSelected: (value) {
+                if (value != _isSortedByCategory) {
+                  _isSortedByCategory = value;
+                  if (_isSortedByCategory!) {
+                    context.read<ProductCubit>().sortByCategory();
+                  } else {
+                    context.read<ProductCubit>().sortByName();
+                  }
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<bool>>[
+                const PopupMenuItem<bool>(
+                  value: false,
+                  child: Text('Order by Product\'s name'),
+                ),
+                const PopupMenuItem<bool>(
+                  value: true,
+                  child: Text('Order by Product\'s category'),
+                ),
+              ],
+            )
           ],
         ),
         body: Padding(
