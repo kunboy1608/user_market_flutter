@@ -48,11 +48,21 @@ class _CartState extends State<Cart> {
               width: widget.height,
               child: IconButton(
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (context) => const CartPage(),
-                      ));
+                  Navigator.push(context, PageRouteBuilder(
+                    transitionDuration: const Duration(milliseconds: 500),
+                    reverseTransitionDuration: const Duration(milliseconds: 500),
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      var begin = const Offset(0.0, 1.0);
+                      var end = Offset.zero;
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: Curves.ease));
+
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: const CartPage(),
+                      );
+                    },
+                  ));
                 },
                 icon: Icon(
                   CupertinoIcons.cart,
