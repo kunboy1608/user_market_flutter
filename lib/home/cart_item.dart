@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/product_details.dart';
 
@@ -25,12 +28,14 @@ class CartItem extends StatelessWidget {
         child: Hero(
           tag: "${product.id}_cartItem",
           child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(180)),
-            child: Image.asset(
-              'assets/img/background_login.png',
-              fit: BoxFit.cover,
-            ),
-          ),
+              borderRadius: const BorderRadius.all(Radius.circular(180)),
+              child: product.actuallyLink != null &&
+                      product.actuallyLink!.isNotEmpty
+                  ? FadeInImage(
+                      placeholder: const AssetImage('assets/img/loading.gif'),
+                      image: FileImage(File(product.actuallyLink!)),
+                    )
+                  : const Icon(Icons.add_rounded)),
         ),
       ),
     );

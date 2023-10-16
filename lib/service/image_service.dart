@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
@@ -24,9 +25,31 @@ class ImageService {
     String fileName = imgUrl.substring(imgUrl.indexOf("/") + 1);
     return getTemporaryDirectory().then(
         (direc) => File("${direc.path}/$fileName").exists().then((exists) {
-              /// TODO: Missing check local img vs cloud image are not matched
               if (exists) {
-                return "${direc.path}/$fileName";
+                return FirestorageService.instance
+                    .getMd5Hash(imgUrl)
+                    .then((md5code) {
+                  if (md5code == null) {
+                    return null;
+                  }
+                  return File("${direc.path}/$fileName")
+                      .readAsBytes()
+                      .then((uint8list) {
+                    if (md5.convert(uint8list).toString() == md5code) {
+                      return "${direc.path}/$fileName";
+                    }
+                    return FirestorageService.instance
+                        .getLinkDownload(imgUrl)
+                        .then((link) {
+                      if (link != null) {
+                        return Dio()
+                            .download(link, "${direc.path}/$fileName")
+                            .then((_) => "${direc.path}/$fileName");
+                      }
+                      return null;
+                    });
+                  });
+                });
               } else {
                 return FirestorageService.instance
                     .getLinkDownload(imgUrl)
@@ -35,9 +58,8 @@ class ImageService {
                     return Dio()
                         .download(link, "${direc.path}/$fileName")
                         .then((_) => "${direc.path}/$fileName");
-                  } else {
-                    return null;
                   }
+                  return null;
                 });
               }
             }));

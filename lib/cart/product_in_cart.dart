@@ -45,14 +45,12 @@ class _ProductInCartState extends State<ProductInCart> {
                         borderRadius: BorderRadius.circular(defRadius),
                         child: widget.product.actuallyLink != null &&
                                 widget.product.actuallyLink!.isNotEmpty
-                            ?
-                            // FadeInImage(
-                            //     placeholder:
-                            //         const AssetImage('assets/img/loading.gif'),
-                            //     image: FileImage(
-                            //         File(widget.product.actuallyLink!)),
-                            //   )
-                            Image.asset(widget.product.actuallyLink!)
+                            ? FadeInImage(
+                                placeholder:
+                                    const AssetImage('assets/img/loading.gif'),
+                                image: FileImage(
+                                    File(widget.product.actuallyLink!)),
+                              )
                             : const Icon(
                                 Icons.add_rounded,
                                 size: 160.0,
@@ -83,8 +81,7 @@ class _ProductInCartState extends State<ProductInCart> {
                             context.read<CartCubit>().decrease(widget.product),
                         child: const Icon(Icons.remove),
                       ),
-                      Card(
-                          child: Text(widget.quantity.toString())),
+                      Card(child: Text(widget.quantity.toString())),
                       ElevatedButton(
                         onPressed: () =>
                             context.read<CartCubit>().increase(widget.product),

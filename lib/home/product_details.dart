@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
@@ -37,17 +39,25 @@ class _ProductDetailsState extends State<ProductDetails> {
           children: [
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.4,
-              child: Hero(
-                tag: _tag,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(defRadius),
-                    bottomRight: Radius.circular(defRadius),
-                  ),
-                  child: Image.asset(
-                    "assets/img/background_login.png",
-                    fit: BoxFit.cover,
-                  ),
+              child: Center(
+                child: Hero(
+                  tag: _tag,
+                  child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(defRadius),
+                        bottomRight: Radius.circular(defRadius),
+                      ),
+                      child: widget.pro.actuallyLink != null &&
+                              widget.pro.actuallyLink!.isNotEmpty
+                          ? SizedBox(
+                              child: FadeInImage(
+                                placeholder:
+                                    const AssetImage('assets/img/loading.gif'),
+                                image:
+                                    FileImage(File(widget.pro.actuallyLink!)),
+                              ),
+                            )
+                          : const Icon(Icons.add_rounded)),
                 ),
               ),
             ),
