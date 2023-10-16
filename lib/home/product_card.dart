@@ -55,14 +55,14 @@ class ProductCard extends StatelessWidget {
                     children: [
                       Text(
                         pro.name ?? "",
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      Text(pro.categoryId?.toString() ?? "",
+                      Text("Category: ${pro.categoryId?.toString() ?? ""}",
                           maxLines: 1, overflow: TextOverflow.ellipsis),
                       Text("Price: ${formatCurrency(pro.price)}",
-                          maxLines: 2, overflow: TextOverflow.ellipsis)
+                          maxLines: 1, overflow: TextOverflow.ellipsis)
                     ],
                   ),
                 ),
