@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
@@ -24,32 +23,9 @@ class ImageService {
   Future<String?> getActuallyLink(String imgUrl) async {
     String fileName = imgUrl.substring(imgUrl.indexOf("/") + 1);
     return getTemporaryDirectory().then(
-        (direc) => File("${direc.path}/$fileName").exists().then((exists) {
+        (direc) => File("${direc.path}/$fileName").exists().then((exists) {              
               if (exists) {
-                return FirestorageService.instance
-                    .getMd5Hash(imgUrl)
-                    .then((md5code) {
-                  if (md5code == null) {
-                    return null;
-                  }
-                  return File("${direc.path}/$fileName")
-                      .readAsBytes()
-                      .then((uint8list) {
-                    if (md5.convert(uint8list).toString() == md5code) {
-                      return "${direc.path}/$fileName";
-                    }
-                    return FirestorageService.instance
-                        .getLinkDownload(imgUrl)
-                        .then((link) {
-                      if (link != null) {
-                        return Dio()
-                            .download(link, "${direc.path}/$fileName")
-                            .then((_) => "${direc.path}/$fileName");
-                      }
-                      return null;
-                    });
-                  });
-                });
+                return "${direc.path}/$fileName";
               } else {
                 return FirestorageService.instance
                     .getLinkDownload(imgUrl)
@@ -58,8 +34,9 @@ class ImageService {
                     return Dio()
                         .download(link, "${direc.path}/$fileName")
                         .then((_) => "${direc.path}/$fileName");
+                  } else {
+                    return null;
                   }
-                  return null;
                 });
               }
             }));

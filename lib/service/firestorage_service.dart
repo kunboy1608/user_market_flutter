@@ -59,12 +59,4 @@ class FirestorageService {
       debugPrint(e.toString());
     }
   }
-
-  Future<String?> getMd5Hash(String path) async {
-    return _initFirestorage().then((_) => _firebaseStorage!
-        .ref()
-        .child(path)
-        .getMetadata()
-        .then((value) => value.md5Hash));
-  }
 }
