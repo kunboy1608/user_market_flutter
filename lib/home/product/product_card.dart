@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:user_market/entity/product.dart';
-import 'package:user_market/home/product_details.dart';
+import 'package:user_market/home/product/product_details.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/string_utils.dart';
 

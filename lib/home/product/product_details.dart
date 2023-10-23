@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
+import 'package:user_market/entity/order.dart';
 import 'package:user_market/entity/product.dart';
+import 'package:user_market/service/entity/order_service.dart';
+import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/string_utils.dart';
 
@@ -35,11 +38,12 @@ class _ProductDetailsState extends State<ProductDetails> {
         title: const Text("App bar"),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.4,
-              child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(defPading),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
                 child: Hero(
                   tag: _tag,
                   child: ClipRRect(
@@ -60,37 +64,59 @@ class _ProductDetailsState extends State<ProductDetails> {
                           : const Icon(Icons.add_rounded)),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(defPading),
-              child: Column(
+              const SizedBox(height: defPading),
+              Row(
                 children: [
                   Text(
                     widget.pro.name ?? "",
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  Text(widget.pro.categoryId?.toString() ?? "",
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                  Text("Price: ${formatCurrency(widget.pro.price)}",
-                      maxLines: 2, overflow: TextOverflow.ellipsis)
+                  const Spacer(),
+                  Text(
+                    formatCurrency(widget.pro.price),
+                    textAlign: TextAlign.right,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  )
                 ],
               ),
-            )
-          ],
+              Text("Category: ${widget.pro.categoryId?.toString() ?? ""}",
+                  textAlign: TextAlign.left,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+              Text(widget.pro.description ?? ""),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: widget.isFromCart
           ? null
-          : ElevatedButton(
+          : FilledButton(
               onPressed: () {
-                context.read<CartCubit>().setOrReplace(widget.pro, 1);
                 context.read<CartCubit>().setOrReplace(widget.pro, 1);
                 setState(() {
                   _tag = "${widget.pro.id ?? ""}_cartItem";
                 });
+
+                Map<String, Map<String, int>> map = {};
+
+                final m = Map.of(context.read<CartCubit>().state);
+
+                m.forEach((key, value) {
+                  map.addAll({
+                    key: {value.$1.price.toString(): value.$2}
+                  });
+                });
+
                 Navigator.pop(context);
+
+                OrderService.instance.update(Order()
+                  ..id = Cache.cartId
+                  ..products = map
+                  ..vouchers = ["code 1", "code 2"]);
               },
               child: const Text("Add to cart"),
             ),

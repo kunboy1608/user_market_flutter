@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
 import 'package:user_market/entity/product.dart';
-import 'package:user_market/home/product_details.dart';
+import 'package:user_market/home/product/product_details.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/string_utils.dart';
 

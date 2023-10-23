@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:user_market/service/google/firestorage_service.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
-import 'package:user_market/service/firestorage_service.dart';
 
 class ImageService {
   static ImageService? _instance;

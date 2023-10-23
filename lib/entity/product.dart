@@ -1,43 +1,60 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:user_market/entity/entity.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Product extends Entity {
-  static String get collectionName => "products";
-
+  // Basic attribute
   String? name;
   double? price;
   int? categoryId;
   String? imgUrl;
   String? provider;
-  Timestamp? date;
+  String? description;
+
+  // Discount attribute
+  Timestamp? startDiscountDate;
+  Timestamp? endDiscountDate;
+  double? discountPrice;
 
   // Transient field
-  String? id;
   String? actuallyLink;
 
   Product();
 
   Product.fromMap(Map<String, dynamic> map) {
-    id = map["id"];
     name = map["name"];
     price = double.parse(map["price"].toString());
     categoryId = map["category_id"];
     imgUrl = map["img_url"];
     provider = map["provider"];
-    date = map["date"];
+    description = map["description"];
+
+    discountPrice = map["discount_price"];
+    startDiscountDate = map["start_discount_date"];
+    endDiscountDate = map["end_discount_date"];
+
+    uploadDate = map["upload_date"];
+    lastUpdatedDate = map["last_update_date"];
+
+    id = map["id"];
     actuallyLink = map["actually_link"];
   }
 
+  @override
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'category_id': categoryId,
-      'price': price,
-      'img_url': imgUrl,
-      'provider': provider,
-      'date': date,
-      'actually_link': actuallyLink
-    };
+    return super.toMap()
+      ..addAll({
+        'name': name,
+        'price': price,
+        'category_id': categoryId,
+        'img_url': imgUrl,
+        'provider': provider,
+        'description': description,
+        // Discount attribute
+        'discount_price': discountPrice,
+        'start_discount_date': startDiscountDate,
+        'end_discount_date': endDiscountDate,
+        // Transient field
+        'actually_link': actuallyLink
+      });
   }
 }

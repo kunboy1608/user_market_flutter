@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +7,8 @@ import 'package:user_market/bloc/cart_cubit.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/cart_item.dart';
 import 'package:user_market/cart/cart_page.dart';
+import 'package:user_market/service/entity/order_service.dart';
+import 'package:user_market/service/entity/product_service.dart';
 import 'package:user_market/util/const.dart';
 
 class Cart extends StatefulWidget {
@@ -16,6 +20,30 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
+  late StreamController<Map<String, int>> _streamController;
+
+  @override
+  void initState() {
+    super.initState();
+    _streamController = StreamController<Map<String, int>>();
+
+    OrderService.instance.listenCartChanges(_streamController);
+    _streamController.stream.listen(
+      (event) {
+        Map<String, (Product, int)> map = {};
+
+        event.forEach((key, value) {
+          ProductService.instance.getById(key).then((pro) {
+            if (pro != null) {
+              map.addAll({pro.id!: (pro, value)});
+              context.read<CartCubit>().replaceCurrentState(map);
+            }
+          });
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -48,21 +76,24 @@ class _CartState extends State<Cart> {
               width: widget.height,
               child: IconButton(
                 onPressed: () {
-                  Navigator.push(context, PageRouteBuilder(
-                    transitionDuration: const Duration(milliseconds: 500),
-                    reverseTransitionDuration: const Duration(milliseconds: 500),
-                    pageBuilder: (context, animation, secondaryAnimation) {
-                      var begin = const Offset(0.0, 1.0);
-                      var end = Offset.zero;
-                      var tween = Tween(begin: begin, end: end)
-                          .chain(CurveTween(curve: Curves.ease));
+                  Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        transitionDuration: const Duration(milliseconds: 500),
+                        reverseTransitionDuration:
+                            const Duration(milliseconds: 500),
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          var begin = const Offset(0.0, 1.0);
+                          var end = Offset.zero;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: Curves.ease));
 
-                      return SlideTransition(
-                        position: animation.drive(tween),
-                        child: const CartPage(),
-                      );
-                    },
-                  ));
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: const CartPage(),
+                          );
+                        },
+                      ));
                 },
                 icon: Icon(
                   CupertinoIcons.cart,

@@ -3,11 +3,17 @@ import 'package:user_market/entity/product.dart';
 
 class CartCubit extends Cubit<Map<String, (Product, int)>> {
   CartCubit(super.initialState) : super();
+
+  void replaceCurrentState(Map<String, (Product, int)> newState) {
+    emit(Map.of(newState));
+  }
+
   void setOrReplace(Product p, int quantity) {
     if (p.id == null) {
       return;
     }
-    state[p.id!] = (p, quantity);
+    final oldQuantity = state[p.id!]?.$2;
+    state[p.id!] = (p, oldQuantity ?? quantity);
     emit(Map.of(state));
   }
 

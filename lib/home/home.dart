@@ -7,10 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/product_cubit.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/cart_bottom.dart';
-import 'package:user_market/home/product_card.dart';
+import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/search/product_search_delegate.dart';
-import 'package:user_market/service/firestorage_service.dart';
-import 'package:user_market/service/firestore_service.dart';
+import 'package:user_market/service/entity/product_service.dart';
+import 'package:user_market/service/google/firestorage_service.dart';
 import 'package:user_market/util/const.dart';
 
 class Home extends StatefulWidget {
@@ -35,8 +35,7 @@ class _HomeState extends State<Home> {
     super.initState();
     _controller = ScrollController();
 
-    FirestoreService.instance
-        .listenChanges(Product.collectionName, _streamController);
+    ProductService.instance.listenChanges(_streamController);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _streamController.stream.listen((event) {

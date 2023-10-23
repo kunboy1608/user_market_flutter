@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:user_market/bloc/cart_cubit.dart';
-import 'package:user_market/cart/product_in_cart.dart';
-import 'package:user_market/entity/product.dart';
-import 'package:user_market/util/const.dart';
-import 'package:user_market/util/string_utils.dart';
+import 'package:user_market/cart/list_item_in_cart_widget.dart';
+import 'package:user_market/cart/list_orders_widget.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -14,46 +10,44 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  late List<Tab> _tabs;
+  late List<Widget> _tabViews;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs = const [
+      Tab(text: "Cart"),
+      Tab(text: "Waitting to confirm"),
+      Tab(text: "Waiting to delivery man take product"),
+      Tab(text: "Delivering"),
+      Tab(text: "Delivered"),
+      Tab(text: "Cancelled"),
+      Tab(text: "Refund"),
+    ];
+
+    _tabViews = const [
+      ListItemInCartWidget(),
+      ListOrdersWidget(status: 1),
+      ListOrdersWidget(status: 2),
+      ListOrdersWidget(status: 3),
+      ListOrdersWidget(status: 4),
+      ListOrdersWidget(status: 5),
+      ListOrdersWidget(status: 6),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Danh sach mua"),
-      ),
-      body: BlocBuilder<CartCubit, Map<String, (Product, int)>>(
-          builder: (context, state) => ListView.separated(
-              itemBuilder: (context, index) => ProductInCart(
-                  product: state.values.elementAt(index).$1,
-                  quantity: state.values.elementAt(index).$2),
-              separatorBuilder: (context, index) => const SizedBox(
-                    height: defPading,
-                  ),
-              itemCount: state.values.length)),
-      bottomNavigationBar: SizedBox(
-        height: 60,
-        child: Row(
-          children: [
-            Expanded(
-              child: Center(
-                child: BlocBuilder<CartCubit, Map<String, (Product, int)>>(
-                  builder: (_, state) {
-                    double sum = 0.0;
-                    for (var element in state.values) {
-                      sum += (element.$1.price ?? 0) * element.$2;
-                    }
-                    return Text("Total: ${formatCurrency(sum)}");
-                  },
-                ),
-              ),
-            ),
-            Expanded(
-                child: FilledButton(
-              onPressed: () {},
-              child: const Text("Buy!"),
-            ))
-          ],
-        ),
-      ),
+    return DefaultTabController(
+      length: _tabs.length,
+      child: Scaffold(
+          appBar: AppBar(
+              title: const Text("Cart"),
+              bottom: TabBar(isScrollable: true, tabs: _tabs)),
+          body: TabBarView(
+            children: _tabViews,
+          )),
     );
   }
 }

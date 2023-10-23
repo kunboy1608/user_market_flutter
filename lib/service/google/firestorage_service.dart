@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:user_market/service/google/firebase_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:user_market/service/firebase_service.dart';
 
 class FirestorageService {
   static FirestorageService? _instance;

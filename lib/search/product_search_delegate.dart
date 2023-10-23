@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/product_cubit.dart';
 import 'package:user_market/entity/product.dart';
-import 'package:user_market/home/product_card.dart';
+import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/util/const.dart';
 
 class ProductSearchDelegate extends SearchDelegate<String?> {

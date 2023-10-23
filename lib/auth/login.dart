@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:user_market/home/home.dart';
-import 'package:user_market/service/firebase_service.dart';
+import 'package:user_market/service/google/firebase_service.dart';
+import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/widget_util.dart';
 
@@ -55,6 +56,7 @@ class _LoginState extends State<Login> {
       Navigator.of(context).pop();
 
       if (credential != null) {
+        Cache.userId = credential.user!.uid;
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
