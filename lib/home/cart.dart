@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,16 +31,19 @@ class _CartState extends State<Cart> {
     OrderService.instance.listenCartChanges(_streamController);
     _streamController.stream.listen(
       (event) {
-        Map<String, (Product, int)> map = {};
-
-        event.forEach((key, value) {
-          ProductService.instance.getById(key).then((pro) {
-            if (pro != null) {
-              map.addAll({pro.id!: (pro, value)});
-              context.read<CartCubit>().replaceCurrentState(map);
-            }
+        if (event.isEmpty) {
+          context.read<CartCubit>().replaceCurrentState({});
+        } else {
+          Map<String, (Product, int)> map = {};
+          event.forEach((key, value) {
+            ProductService.instance.getById(key).then((pro) {
+              if (pro != null) {
+                map.addAll({pro.id!: (pro, value)});
+                context.read<CartCubit>().replaceCurrentState(map);
+              }
+            });
           });
-        });
+        }
       },
     );
   }
@@ -105,5 +109,11 @@ class _CartState extends State<Cart> {
         );
       }),
     );
+  }
+
+  @override
+  void dispose() {
+    _streamController.close();
+    super.dispose();
   }
 }

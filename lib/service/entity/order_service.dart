@@ -54,6 +54,7 @@ class OrderService extends EntityService<Order> {
       return;
     }
     e.status = (e.status! + 1).clamp(1, 4);
+    return update(e);
   }
 
   Future<void> cancel(Order e) async {
@@ -91,7 +92,12 @@ class OrderService extends EntityService<Order> {
   void listenCartChanges(StreamController<Map<String, int>> controller) {
     FirestoreService.instance
         .getFireStore()
-        .then((fs) => fs.collection(collectionName).get().then((event) {
+        .then((fs) => fs
+                .collection(collectionName)
+                .limit(1)
+                .where('status', isEqualTo: '0')
+                .get()
+                .then((event) {
               if (event.docs.isNotEmpty && event.docs.first.exists) {
                 Cache.cartId = event.docs.first.id;
                 return event.docs.first.id;
