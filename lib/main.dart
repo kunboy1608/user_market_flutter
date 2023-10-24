@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/auth/login.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
+import 'package:user_market/bloc/order_cubit.dart';
 import 'package:user_market/bloc/product_cubit.dart';
 
 void main() {
@@ -12,6 +13,9 @@ void main() {
     ),
     BlocProvider(
       create: (context) => CartCubit({}),
+    ),
+    BlocProvider(
+      create: (context) => OrderCubit({}),
     ),
   ], child: const MainApp()));
 }

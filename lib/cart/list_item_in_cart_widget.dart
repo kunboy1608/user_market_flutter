@@ -27,6 +27,7 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
     OrderService.instance
         .add(Order()
           ..products = map
+          ..status = 1
           ..vouchers = [])
         .then((_) {
       OrderService.instance
@@ -34,7 +35,7 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
             ..id = Cache.cartId
             ..products = {})
           .then((_) {
-        Navigator.pop(context);
+        // Navigator.pop(context);
       });
     });
   }

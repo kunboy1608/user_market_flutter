@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:user_market/bloc/order_cubit.dart';
+import 'package:user_market/entity/order.dart';
 
 class ListOrdersWidget extends StatefulWidget {
   const ListOrdersWidget({super.key, required this.status})
-      : assert(status >= 0 && status <= 6);
+      : assert(status >= 1 && status <= 6);
   final int status;
 
   @override
@@ -12,22 +15,20 @@ class ListOrdersWidget extends StatefulWidget {
 class _ListOrdersWidgetState extends State<ListOrdersWidget> {
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 50,
-      itemBuilder: (context, index) {
-        // return OrderCard(
-        //     order: Order()
-        //       ..status = widget.status
-        //       ..products = [
-        //         ("", 0.0, 1),
-        //         // ("", 0.0, 2),
-        //         // ("", 0.0, 3),
-        //         // ("", 0.0, 4),
-        //         // ("", 0.0, 5),
-        //         // ("", 0.0, 6)
-        //       ]);
-        return Container();
-      },
-    );
+    return BlocBuilder<OrderCubit, Map<int, Map<String, Order>>>(
+        builder: (context, state) {
+      return ListView.builder(
+        itemCount: state[widget.status]?.length ?? 0,
+        itemBuilder: (context, index) {
+          if (state[widget.status] != null &&
+              state[widget.status]!.isNotEmpty) {
+            return Text(
+                state[widget.status]?.values.elementAt(index).id ?? "null");
+          } else {
+            return Container();
+          }
+        },
+      );
+    });
   }
 }

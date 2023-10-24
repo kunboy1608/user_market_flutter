@@ -30,8 +30,11 @@ class OrderService extends EntityService<Order> {
 
   @override
   Future<DocumentReference<Map<String, dynamic>>> add(Order e) async {
-    return FirestoreService.instance.getFireStore().then(
-        (fs) => fs.collection(collectionName).add(e.toMap()..remove("id")));
+    return FirestoreService.instance
+        .getFireStore()
+        .then((fs) => fs.collection(collectionName).add(e.toMap()
+          ..remove("id")
+          ..addAll({'user_id': Cache.userId})));
   }
 
   @override
@@ -78,15 +81,45 @@ class OrderService extends EntityService<Order> {
   /// Without cart changes
   @override
   void listenChanges(StreamController<(DocumentChangeType, Order)> controller) {
-    for (int i = 1; i < 7; i++) {
-      FirestoreService.instance.getFireStore().then((fs) =>
-          fs.collection(collectionName).snapshots().listen((event) {
-            for (var element in event.docChanges) {
-              Order p = Order.fromMap(element.doc.data()!)..id = element.doc.id;
-              controller.sink.add((element.type, p));
-            }
-          }));
-    }
+    // FirestoreService.instance.getFireStore().then((fs) => fs
+    //         .collection(collectionName)
+    //         .where('status', isGreaterThan: 0)
+    //         .snapshots()
+    //         .listen((event) {
+    //       for (var element in event.docChanges) {
+    //         Order p = Order.fromMap(element.doc.data()!)..id = element.doc.id;
+    //         controller.sink.add((element.type, p));
+    //       }
+    //     }));
+  }
+
+  Future<Query<Map<String, dynamic>>> getInputChanges() async {
+    return FirestoreService.instance.getFireStore().then((fs) =>
+        fs.collection(collectionName).where('status', isGreaterThan: 0));
+  }
+
+  Future<DocumentReference<Map<String, dynamic>>> getCartChanges() {
+    return FirestoreService.instance
+        .getFireStore()
+        .then((fs) => fs
+                .collection(collectionName)
+                .limit(1)
+                .where('status', isEqualTo: '0')
+                .get()
+                .then((event) {
+              if (event.docs.isNotEmpty && event.docs.first.exists) {
+                Cache.cartId = event.docs.first.id;
+                return event.docs.first.id;
+              } else {
+                return add(Order()).then((value) {
+                  Cache.cartId = value.id;
+                  return value.id;
+                });
+              }
+            }))
+        .then((id) => FirestoreService.instance
+            .getFireStore()
+            .then((fs) => fs.collection(collectionName).doc(id.toString())));
   }
 
   void listenCartChanges(StreamController<Map<String, int>> controller) {
@@ -119,8 +152,7 @@ class OrderService extends EntityService<Order> {
 
               // Map<ProductId, Map<price.toString(), quantity>>
               final map = event.data()!["products"];
-              map?.forEach((key, value) {
-                debugPrint("key: $key value: $value");
+              map?.forEach((key, value) {                
                 products.addAll({key: value.values.first});
               });
 

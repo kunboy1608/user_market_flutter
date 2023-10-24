@@ -23,8 +23,19 @@ class Order extends Entity {
     userId = map["user_id"];
     status = map["status"];
 
-    products = map["products"];
-    vouchers = map["vouchers"];
+    products = {};
+    map["products"]?.forEach((key, value) {
+      products!.addAll({
+        key: {
+          value.keys.first.toString(): int.parse(value.values.first.toString())
+        }
+      });
+    });
+
+    vouchers = [];
+    map["vouchers"]?.forEach((e) {
+      vouchers!.add(e.toString());
+    });
 
     uploadDate = map["upload_date"];
     lastUpdatedDate = map["last_update_date"];
