@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/product_cubit.dart';
 import 'package:user_market/entity/product.dart';
+import 'package:user_market/home/banner/banner_widget.dart';
+import 'package:user_market/home/banner/flash_sale_widget.dart';
+import 'package:user_market/home/banner/hot_sale_widget.dart';
 import 'package:user_market/home/cart_bottom.dart';
 import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/search/product_search_delegate.dart';
@@ -181,21 +184,57 @@ class _HomeState extends State<Home> {
           ],
         ),
         body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: defPading / 2),
-            child: BlocBuilder<ProductCubit, Map<String, Product>>(
-              builder: (context, state) => GridView.builder(
-                controller: _controller,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: defPading,
-                    mainAxisSpacing: defPading,
-                    childAspectRatio: 0.9),
-                itemBuilder: (_, index) => ProductCard(
-                  pro: state.values.elementAt(index),
+          padding: const EdgeInsets.symmetric(horizontal: defPading / 2),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                    borderRadius: BorderRadius.circular(defRadius),
+                    child: const SizedBox(height: 150, child: BannerWidget())),
+                const SizedBox(height: defPading),
+                Text(
+                  "Flash sale",
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                itemCount: state.values.length,
-              ),
-            )),
+                ClipRRect(
+                    borderRadius: BorderRadius.circular(defRadius),
+                    child:
+                        const SizedBox(height: 210, child: FlashSaleWidget())),
+                const SizedBox(height: defPading),
+                Text(
+                  "Best sellers",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: defPading),
+                ClipRRect(
+                    borderRadius: BorderRadius.circular(defRadius),
+                    child: const SizedBox(height: 210, child: HotSaleWidget())),
+                const SizedBox(height: defPading),
+                Text(
+                  "Daily discover",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                BlocBuilder<ProductCubit, Map<String, Product>>(
+                  builder: (context, state) => GridView.builder(
+                    controller: _controller,
+                    shrinkWrap: true,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: defPading,
+                            mainAxisSpacing: defPading,
+                            childAspectRatio: 0.9),
+                    itemBuilder: (_, index) => ProductCard(
+                      pro: state.values.elementAt(index),
+                    ),
+                    itemCount: state.values.length,
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
         bottomNavigationBar: const CartBottom(
           isHidden: false,
         ));

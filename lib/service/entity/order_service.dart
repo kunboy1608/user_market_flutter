@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:user_market/entity/order.dart';
 import 'package:user_market/service/entity/entity_service.dart';

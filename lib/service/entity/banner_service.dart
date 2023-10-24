@@ -16,13 +16,22 @@ class BannerService extends EntityService<Banner> {
 
   @override
   Future<List<Banner>?> get() async {
-    return FirestoreService.instance
+    List<Banner> list = await FirestoreService.instance
         .getFireStore()
         .then((fs) => fs.collection(collectionName).get().then((event) {
               return event.docs.map((doc) {
                 return Banner.fromMap(doc.data())..id = doc.id;
               }).toList();
             }));
+
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].imgUrl != null) {
+        list[i].actuallyLink =
+            await ImageService.instance.getActuallyLink(list[i].imgUrl!);
+      }
+    }
+
+    return list;
   }
 
   @override
