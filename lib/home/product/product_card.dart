@@ -32,7 +32,9 @@ class ProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Hero(
-                  tag: pro.id ?? "",
+                  // TODO: Please reverted it 
+                  // tag: pro.id ?? "",
+                  tag: UniqueKey(),
                   child: SizedBox(
                       width: constraints.maxWidth,
                       height: constraints.maxHeight * 0.6,

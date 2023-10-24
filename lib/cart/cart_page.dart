@@ -1,11 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart' hide Order;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:user_market/bloc/order_cubit.dart';
 import 'package:user_market/cart/list_item_in_cart_widget.dart';
 import 'package:user_market/cart/list_orders_widget.dart';
-import 'package:user_market/entity/order.dart';
-import 'package:user_market/service/entity/order_service.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -44,50 +39,17 @@ class _CartPageState extends State<CartPage> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context.read<OrderCubit>().replaceState({});
-  }
-
-  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: _tabs.length,
-      child: Scaffold(
+        length: _tabs.length,
+        child: Scaffold(
           appBar: AppBar(
               title: const Text("Cart"),
               bottom: TabBar(isScrollable: true, tabs: _tabs)),
-          body: FutureBuilder(
-              future: OrderService.instance.getInputChanges(),
-              builder: (_, s) {
-                if (!s.hasData) {
-                  return Container();
-                }
-                return StreamBuilder(
-                    stream: s.data!.snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        for (var element in snapshot.data!.docChanges) {
-                          Order o = Order.fromMap(element.doc.data()!)
-                            ..id = element.doc.id;
-                          switch (element.type) {
-                            case DocumentChangeType.added:
-                            case DocumentChangeType.modified:
-                              context.read<OrderCubit>().addOrUpdateIfExist(o);
-                              break;
-                            case DocumentChangeType.removed:
-                              context.read<OrderCubit>().remove(o);
-                              break;
-                            default:
-                          }
-                        }
-                      }
-                      return TabBarView(
-                        children: _tabViews,
-                      );
-                    });
-              })),
-    );
+          body: TabBarView(
+            children: _tabViews,
+          ),
+        ));
   }
 
   @override

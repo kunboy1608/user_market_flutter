@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
+import 'package:user_market/entity/order.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/product/product_details.dart';
+import 'package:user_market/service/entity/order_service.dart';
+import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/string_utils.dart';
 
@@ -77,14 +80,40 @@ class _ProductInCartState extends State<ProductInCart> {
                   child: Row(
                     children: [
                       ElevatedButton(
-                        onPressed: () =>
-                            context.read<CartCubit>().decrease(widget.product),
+                        onPressed: () {
+                          context.read<CartCubit>().decrease(widget.product);
+                          Map<String, Map<String, int>> map = {};
+                          context.read<CartCubit>().state.forEach((key, value) {
+                            map.addAll({
+                              key: {value.$1.price.toString(): value.$2}
+                            });
+                          });
+
+                          OrderService.instance.update(Order()
+                            ..id = Cache.cartId
+                            ..products = map
+                            ..status = 0
+                            ..vouchers = []);
+                        },
                         child: const Icon(Icons.remove),
                       ),
                       Card(child: Text(widget.quantity.toString())),
                       ElevatedButton(
-                        onPressed: () =>
-                            context.read<CartCubit>().increase(widget.product),
+                        onPressed: () {
+                          context.read<CartCubit>().increase(widget.product);
+                          Map<String, Map<String, int>> map = {};
+                          context.read<CartCubit>().state.forEach((key, value) {
+                            map.addAll({
+                              key: {value.$1.price.toString(): value.$2}
+                            });
+                          });
+
+                          OrderService.instance.update(Order()
+                            ..id = Cache.cartId
+                            ..products = map
+                            ..status = 0
+                            ..vouchers = []);
+                        },
                         child: const Icon(Icons.add),
                       ),
                     ],

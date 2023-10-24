@@ -1,10 +1,12 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Order;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:user_market/bloc/order_cubit.dart';
 import 'package:user_market/bloc/product_cubit.dart';
+import 'package:user_market/entity/order.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/banner/banner_widget.dart';
 import 'package:user_market/home/banner/flash_sale_widget.dart';
@@ -12,8 +14,10 @@ import 'package:user_market/home/banner/hot_sale_widget.dart';
 import 'package:user_market/home/cart_bottom.dart';
 import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/search/product_search_delegate.dart';
+import 'package:user_market/service/entity/order_service.dart';
 import 'package:user_market/service/entity/product_service.dart';
 import 'package:user_market/service/google/firestorage_service.dart';
+import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 
 class Home extends StatefulWidget {
@@ -26,7 +30,10 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   // bool _hideCart = false;
   late ScrollController _controller;
-  final _streamController = StreamController<(DocumentChangeType, Product)>();
+  final _streamProductsController =
+      StreamController<(DocumentChangeType, Product)>();
+  final _streamOrdersController =
+      StreamController<(DocumentChangeType, Order)>();
 
   bool? _isSortedByCategory;
   int _filterCategory = 0;
@@ -38,10 +45,10 @@ class _HomeState extends State<Home> {
     super.initState();
     _controller = ScrollController();
 
-    ProductService.instance.listenChanges(_streamController);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _streamController.stream.listen((event) {
+      // Get products
+      ProductService.instance.listenChanges(_streamProductsController);
+      _streamProductsController.stream.listen((event) {
         _isSortedByCategory = null;
         if (_holdCurrentState == null) {
           switch (event.$1) {
@@ -85,6 +92,22 @@ class _HomeState extends State<Home> {
           }
         }
       });
+
+      // Get orders
+      OrderService.instance.listenChanges(_streamOrdersController);
+      _streamOrdersController.stream.listen((event) {
+        switch (event.$1) {
+          case DocumentChangeType.added:
+          case DocumentChangeType.modified:
+            context.read<OrderCubit>().addOrUpdateIfExist(event.$2);
+            break;
+          case DocumentChangeType.removed:
+            // Support remove useless img on Firestorage
+            context.read<OrderCubit>().remove(event.$2);
+            break;
+          default:
+        }
+      });
     });
   }
 
@@ -94,8 +117,14 @@ class _HomeState extends State<Home> {
         appBar: AppBar(
           title: GestureDetector(
             onTap: () {},
-            child: const Row(
-              children: [Icon(CupertinoIcons.profile_circled), Text("User")],
+            child: Row(
+              children: [
+                const Icon(CupertinoIcons.profile_circled),
+                Text(
+                  Cache.userId.substring(0, 15),
+                  overflow: TextOverflow.ellipsis,
+                )
+              ],
             ),
           ),
           actions: [
