@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart' hide Order;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
@@ -22,6 +23,36 @@ class ProductInCart extends StatefulWidget {
 }
 
 class _ProductInCartState extends State<ProductInCart> {
+
+  Widget _getPriceWidget() {
+    final now = Timestamp.now();
+    if (widget.product.discountPrice != null &&
+        (widget.product.startDiscountDate != null || widget.product.endDiscountDate != null) &&
+        (widget.product.startDiscountDate == null ||
+            now.compareTo(widget.product.startDiscountDate!) > 0) &&
+        (widget.product.endDiscountDate == null ||
+            now.compareTo(widget.product.endDiscountDate!) < 0)) {
+      return RichText(
+        text: TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+              text: formatCurrency(widget.product.price),
+              style: const TextStyle(
+                color: Colors.grey,
+                decoration: TextDecoration.lineThrough,
+              ),
+            ),
+            TextSpan(
+              text: " ${formatCurrency(widget.product.discountPrice)}",
+            ),
+          ],
+        ),
+      );
+    }
+    return Text("${formatCurrency(widget.product.price)} ",
+        maxLines: 1, overflow: TextOverflow.ellipsis);
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -35,7 +66,7 @@ class _ProductInCartState extends State<ProductInCart> {
                     MaterialPageRoute(
                       builder: (context) => ProductDetails(
                         pro: widget.product,
-                        isFromCart: true,
+                        additionTag: "_cartItem",
                       ),
                     ));
               },
@@ -69,10 +100,7 @@ class _ProductInCartState extends State<ProductInCart> {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: defPading),
-                Text(
-                  "Price: ${formatCurrency(widget.product.price)}",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                _getPriceWidget(),
                 const SizedBox(height: defPading),
                 SizedBox(
                   height: 30,

@@ -9,6 +9,7 @@ class Product extends Entity {
   String? imgUrl;
   String? provider;
   String? description;
+  int? quantitySold;
 
   // Discount attribute
   Timestamp? startDiscountDate;
@@ -27,10 +28,12 @@ class Product extends Entity {
     imgUrl = map["img_url"];
     provider = map["provider"];
     description = map["description"];
+    quantitySold = map["quantity_sold"];
 
     discountPrice = map["discount_price"];
     startDiscountDate = map["start_discount_date"];
     endDiscountDate = map["end_discount_date"];
+    
 
     uploadDate = map["upload_date"];
     lastUpdatedDate = map["last_update_date"];

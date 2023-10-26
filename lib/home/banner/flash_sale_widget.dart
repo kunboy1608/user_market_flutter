@@ -10,23 +10,30 @@ class FlashSaleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+    return LayoutBuilder(builder: (_, constraints) {
       return BlocBuilder<ProductCubit, Map<String, Product>>(
-        builder: (context, state) => ListView.separated(
+          builder: (_, state) {
+        final listFlashSale = context.read<ProductCubit>().getFlashSale();
+        if (listFlashSale.isEmpty) {
+          return const Text(
+              "Sorry!! There are no products on sale at this time");
+        }
+        return ListView.separated(
           scrollDirection: Axis.horizontal,
-          itemCount: state.values.length,
+          itemCount: listFlashSale.length,
           itemBuilder: (_, index) => SizedBox(
             height: constraints.maxHeight,
             width: constraints.maxHeight * 0.9,
             child: ProductCard(
-              pro: state.values.elementAt(index),
+              pro: listFlashSale.elementAt(index),
+              additionTag: "_flashSale",
             ),
           ),
           separatorBuilder: (_, __) => const SizedBox(
             width: defPading,
           ),
-        ),
-      );
+        );
+      });
     });
   }
 }

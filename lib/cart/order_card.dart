@@ -2,6 +2,7 @@ import 'package:user_market/entity/order.dart';
 import 'package:user_market/service/entity/order_service.dart';
 import 'package:user_market/util/string_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:user_market/util/widget_util.dart';
 
 class OrderCard extends StatelessWidget {
   const OrderCard({super.key, required this.order});
@@ -17,8 +18,17 @@ class OrderCard extends StatelessWidget {
     return sum;
   }
 
-  void _cancel() {
-    OrderService.instance.cancel(order);
+  void _cancel(BuildContext context) {
+    WidgetUtil.showYesNoDialog(context, "Are you sure cancel this order?")
+        .then((value) {
+      if (value != null && value == true) {
+        OrderService.instance.cancel(order);
+      }
+    });
+  }
+
+  void _update() {
+    OrderService.instance.delivered(order);
   }
 
   @override
@@ -32,11 +42,15 @@ class OrderCard extends StatelessWidget {
         ),
         isThreeLine: true,
         subtitle: Text(
-            "Total: ${formatCurrency(_sum())}\nCreated date: ${order.uploadDate}"),
-        trailing: order.status == 1
+            "Total: ${formatCurrency(_sum())}\nCreated date: ${order.uploadDate?.toDate().toString() ?? ""}"),
+        trailing: 1 == order.status
             ? IconButton(
-                onPressed: _cancel, icon: const Icon(Icons.clear_rounded))
-            : null,
+                onPressed: () => _cancel(context),
+                icon: const Icon(Icons.clear_rounded))
+            : 3 == order.status
+                ? IconButton(
+                    onPressed: _update, icon: const Icon(Icons.check_rounded))
+                : null,
       ),
     );
   }

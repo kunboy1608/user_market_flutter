@@ -22,7 +22,7 @@ class _BannerWidgetState extends State<BannerWidget> {
     banners?.forEach((element) {
       if (element.actuallyLink != null && element.actuallyLink!.isNotEmpty) {
         imgs.add(FadeInImage(
-          fit: BoxFit.scaleDown,
+          fit: BoxFit.cover,
           placeholder: const AssetImage('assets/img/loading.gif'),
           image: FileImage(File(element.actuallyLink!)),
         ));
@@ -61,7 +61,7 @@ class _BannerWidgetState extends State<BannerWidget> {
               ),
             ),
             Positioned(
-              bottom: 5,
+              bottom: 0,
               right: 0,
               left: 0,
               child: Row(

@@ -1,4 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +20,7 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  late DocumentReference<Map<String, dynamic>> _stream;
+  final _streamController = StreamController<Map<String, int>>();
 
   @override
   void initState() {
@@ -27,34 +28,18 @@ class _CartState extends State<Cart> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      OrderService.instance.getCartChanges().then((s) {
-        _stream = s;
-        _stream.snapshots().listen((event) {
-          if (event.data() != null) {
-            Map<String, int> products = {};
-
-            // Map<ProductId, Map<price.toString(), quantity>>
-            final map = event.data()!["products"];
-            map?.forEach((key, value) {
-              debugPrint("key: $key value: $value");
-              products.addAll({key: value.values.first});
-            });
-
-            if (products.isEmpty) {
-              context.read<CartCubit>().replaceCurrentState({});
-            } else {
-              Map<String, (Product, int)> map = {};
-              products.forEach((key, value) {
-                ProductService.instance.getById(key).then((pro) {
-                  if (pro != null) {
-                    map.addAll({pro.id!: (pro, value)});
-                    context.read<CartCubit>().replaceCurrentState(map);
-                  }
-                });
-              });
+      OrderService.instance.listenCartChanges(_streamController);
+      _streamController.stream.listen((event) {
+        Map<String, (Product, int)> map = {};
+        event.forEach((key, value) {
+          ProductService.instance.getById(key).then((pro) {
+            if (pro != null) {
+              map.addAll({pro.id!: (pro, value)});
+              context.read<CartCubit>().replaceCurrentState(map);
             }
-          }
+          });
         });
+        context.read<CartCubit>().replaceCurrentState(map);
       });
     });
   }
@@ -128,7 +113,6 @@ class _CartState extends State<Cart> {
   @override
   void dispose() {
     debugPrint("Cart: dispose");
-    _stream.snapshots().listen((event) {}).cancel();
     super.dispose();
   }
 }

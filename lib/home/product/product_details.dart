@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
+import 'package:user_market/bloc/voucher_cubit.dart';
 import 'package:user_market/entity/order.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/service/entity/order_service.dart';
@@ -11,9 +12,9 @@ import 'package:user_market/util/const.dart';
 import 'package:user_market/util/string_utils.dart';
 
 class ProductDetails extends StatefulWidget {
-  const ProductDetails({super.key, required this.pro, this.isFromCart = false});
+  const ProductDetails({super.key, required this.pro, this.additionTag = ""});
   final Product pro;
-  final bool isFromCart;
+  final String additionTag;
 
   @override
   State<ProductDetails> createState() => _ProductDetailsState();
@@ -25,10 +26,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   void initState() {
     super.initState();
-    _tag = widget.pro.id ?? "";
-    if (widget.isFromCart) {
-      _tag += "_cartItem";
-    }
+    _tag = "${widget.pro.id ?? ""}${widget.additionTag}";
   }
 
   @override
@@ -54,7 +52,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       child: widget.pro.actuallyLink != null &&
                               widget.pro.actuallyLink!.isNotEmpty
                           ? SizedBox(
-                              child: FadeInImage(
+                              child: FadeInImage(                                
                                 placeholder:
                                     const AssetImage('assets/img/loading.gif'),
                                 image:
@@ -92,34 +90,39 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),
         ),
       ),
-      bottomNavigationBar: widget.isFromCart
-          ? null
-          : FilledButton(
-              onPressed: () {
-                context.read<CartCubit>().setOrReplace(widget.pro, 1);
-                setState(() {
-                  _tag = "${widget.pro.id ?? ""}_cartItem";
-                });
+      bottomNavigationBar: FilledButton(
+        onPressed: () {
+          context.read<CartCubit>().changeQuantity(widget.pro, 1);
+          setState(() {
+            _tag = "${widget.pro.id ?? ""}_cartItem";
+          });
 
-                Map<String, Map<String, int>> map = {};
+          Map<String, Map<String, int>> map = {};
 
-                final m = Map.of(context.read<CartCubit>().state);
+          final m = Map.of(context.read<CartCubit>().state);
 
-                m.forEach((key, value) {
-                  map.addAll({
-                    key: {value.$1.price.toString(): value.$2}
-                  });
-                });
+          m.forEach((key, value) {
+            map.addAll({
+              key: {value.$1.price.toString(): value.$2}
+            });
+          });
 
-                Navigator.pop(context);
+          Navigator.pop(context);
+          List<String> vouchers = [];
+          if (context.read<VoucherCubit>().currentState().values.isNotEmpty) {
+            vouchers.add(
+                context.read<VoucherCubit>().currentState().values.first.id ??
+                    "");
+          }
 
-                OrderService.instance.update(Order()
-                  ..id = Cache.cartId
-                  ..products = map
-                  ..vouchers = ["code 1", "code 2"]);
-              },
-              child: const Text("Add to cart"),
-            ),
+          OrderService.instance.update(Order()
+            ..id = Cache.cartId
+            ..userId = Cache.userId
+            ..products = map
+            ..vouchers = vouchers);
+        },
+        child: const Text("Add to cart"),
+      ),
     );
   }
 }

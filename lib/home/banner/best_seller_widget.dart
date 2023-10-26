@@ -5,27 +5,30 @@ import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/util/const.dart';
 
-class HotSaleWidget extends StatelessWidget {
-  const HotSaleWidget({super.key});
+class BestSellersWidget extends StatelessWidget {
+  const BestSellersWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+    return LayoutBuilder(builder: (_, constraints) {
       return BlocBuilder<ProductCubit, Map<String, Product>>(
-        builder: (context, state) => ListView.separated(
+        builder: (_, state) {
+          final bestSellers = context.read<ProductCubit>().getBestSeller();
+          return ListView.separated(
           scrollDirection: Axis.horizontal,
-          itemCount: state.values.length,
+          itemCount: bestSellers.length,
           itemBuilder: (_, index) => SizedBox(
             height: constraints.maxHeight,
             width: constraints.maxHeight * 0.9,
             child: ProductCard(
-              pro: state.values.elementAt(index),
+              pro: bestSellers.elementAt(index),
+              additionTag: "_bestSellers",
             ),
           ),
           separatorBuilder: (_, __) => const SizedBox(
             width: defPading,
           ),
-        ),
+        );}
       );
     });
   }

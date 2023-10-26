@@ -5,6 +5,7 @@ import 'package:user_market/auth/login.dart';
 import 'package:user_market/bloc/cart_cubit.dart';
 import 'package:user_market/bloc/order_cubit.dart';
 import 'package:user_market/bloc/product_cubit.dart';
+import 'package:user_market/bloc/voucher_cubit.dart';
 
 void main() {
   runApp(MultiBlocProvider(providers: [
@@ -16,6 +17,9 @@ void main() {
     ),
     BlocProvider(
       create: (context) => OrderCubit({}),
+    ),
+     BlocProvider(
+      create: (context) => VoucherCubit({}),
     ),
   ], child: const MainApp()));
 }

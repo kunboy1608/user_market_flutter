@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:user_market/entity/order.dart';
 import 'package:user_market/service/entity/entity_service.dart';
@@ -36,7 +37,8 @@ class OrderService extends EntityService<Order> {
           ..addAll({
             'upload_date': Timestamp.now(),
             'last_update_date': Timestamp.now(),
-            'user_id': Cache.userId})));
+            'user_id': Cache.userId
+          })));
   }
 
   @override
@@ -80,6 +82,15 @@ class OrderService extends EntityService<Order> {
     return update(e);
   }
 
+  Future<void> delivered(Order e) async {
+    if (e.status == null) {
+      return;
+    }
+    e.status = 4;
+
+    return update(e);
+  }
+
   /// Without cart changes
   @override
   void listenChanges(StreamController<(DocumentChangeType, Order)> controller) {
@@ -96,46 +107,27 @@ class OrderService extends EntityService<Order> {
         }));
   }
 
-  Future<DocumentReference<Map<String, dynamic>>> getCartChanges() {
-    return FirestoreService.instance
-        .getFireStore()
-        .then((fs) => fs
-                .collection(collectionName)
-                .limit(1)
-                .where('status', isEqualTo: '0')
-                .where('user_id', isEqualTo: Cache.userId)
-                .get()
-                .then((event) {
-              if (event.docs.isNotEmpty && event.docs.first.exists) {
-                Cache.cartId = event.docs.first.id;
-                return event.docs.first.id;
-              } else {
-                return add(Order()).then((value) {
-                  Cache.cartId = value.id;
-                  return value.id;
-                });
-              }
-            }))
-        .then((id) => FirestoreService.instance
-            .getFireStore()
-            .then((fs) => fs.collection(collectionName).doc(id.toString())));
-  }
-
   void listenCartChanges(StreamController<Map<String, int>> controller) {
     FirestoreService.instance
         .getFireStore()
         .then((fs) => fs
                 .collection(collectionName)
                 .limit(1)
-                .where('status', isEqualTo: '0')
+                .where('status', isEqualTo: 0)
+                .where('user_id', isEqualTo: Cache.userId)
                 .get()
                 .then((event) {
-              if (event.docs.isNotEmpty && event.docs.first.exists) {
+              debugPrint("Order Service: ${Cache.userId}");
+              debugPrint("Order Service: ${event.toString()}");
+              debugPrint("Order Service: ${event.docs.toString()}");
+              if (event.docs.isNotEmpty) {
                 Cache.cartId = event.docs.first.id;
+                debugPrint(Cache.cartId);
                 return event.docs.first.id;
               } else {
                 return add(Order()).then((value) {
                   Cache.cartId = value.id;
+                  debugPrint(Cache.cartId);
                   return value.id;
                 });
               }

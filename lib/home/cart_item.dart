@@ -22,7 +22,7 @@ class CartItem extends StatelessWidget {
               CupertinoPageRoute(
                   builder: (_) => ProductDetails(
                         pro: product,
-                        isFromCart: true,
+                        additionTag: "_cartItem",
                       )));
         },
         child: Hero(

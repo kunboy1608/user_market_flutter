@@ -10,7 +10,7 @@ import 'package:user_market/entity/order.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/banner/banner_widget.dart';
 import 'package:user_market/home/banner/flash_sale_widget.dart';
-import 'package:user_market/home/banner/hot_sale_widget.dart';
+import 'package:user_market/home/banner/best_seller_widget.dart';
 import 'package:user_market/home/cart_bottom.dart';
 import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/search/product_search_delegate.dart';
@@ -113,10 +113,13 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
         appBar: AppBar(
           title: GestureDetector(
-            onTap: () {},
+            onTap: () {
+              debugPrint(MediaQuery.of(context).size.width.toString());
+            },
             child: Row(
               children: [
                 const Icon(CupertinoIcons.profile_circled),
@@ -220,7 +223,9 @@ class _HomeState extends State<Home> {
               children: [
                 ClipRRect(
                     borderRadius: BorderRadius.circular(defRadius),
-                    child: const SizedBox(height: 150, child: BannerWidget())),
+                    child: SizedBox(
+                        height: MediaQuery.of(context).size.width * 9 / 16,
+                        child: const BannerWidget())),
                 const SizedBox(height: defPading),
                 Text(
                   "Flash sale",
@@ -238,7 +243,8 @@ class _HomeState extends State<Home> {
                 const SizedBox(height: defPading),
                 ClipRRect(
                     borderRadius: BorderRadius.circular(defRadius),
-                    child: const SizedBox(height: 210, child: HotSaleWidget())),
+                    child: const SizedBox(
+                        height: 210, child: BestSellersWidget())),
                 const SizedBox(height: defPading),
                 Text(
                   "Daily discover",
@@ -249,8 +255,8 @@ class _HomeState extends State<Home> {
                     controller: _controller,
                     shrinkWrap: true,
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
+                        SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: (MediaQuery.of(context).size.width ~/ 200),
                             crossAxisSpacing: defPading,
                             mainAxisSpacing: defPading,
                             childAspectRatio: 0.9),
@@ -259,7 +265,8 @@ class _HomeState extends State<Home> {
                     ),
                     itemCount: state.values.length,
                   ),
-                )
+                ),
+                const SizedBox(height: defPading),
               ],
             ),
           ),
