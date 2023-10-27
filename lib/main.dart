@@ -18,7 +18,7 @@ void main() {
     BlocProvider(
       create: (context) => OrderCubit({}),
     ),
-     BlocProvider(
+    BlocProvider(
       create: (context) => VoucherCubit({}),
     ),
   ], child: const MainApp()));
@@ -34,8 +34,16 @@ class MainApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
     return MaterialApp(
-      theme: ThemeData(useMaterial3: true),
-      darkTheme: ThemeData.dark(useMaterial3: true),
+      theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+              brightness: Brightness.light,
+              seedColor: const Color.fromARGB(255, 6, 183, 215)),
+          useMaterial3: true),
+      darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+              brightness: Brightness.dark,
+              seedColor: const Color.fromARGB(255, 203, 118, 120)),
+          useMaterial3: true),
       home: const Login(),
     );
   }

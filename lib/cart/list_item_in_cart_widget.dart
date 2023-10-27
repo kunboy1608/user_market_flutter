@@ -9,6 +9,7 @@ import 'package:user_market/entity/order.dart';
 import 'package:user_market/entity/product.dart';
 import 'package:user_market/entity/voucher.dart';
 import 'package:user_market/service/entity/order_service.dart';
+import 'package:user_market/service/entity/voucher_service.dart';
 import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/cost_util.dart';
@@ -34,6 +35,7 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
         key: {actPrice.toString(): value.$2}
       });
     });
+
     OrderService.instance
         .add(Order()
           ..products = map
@@ -45,7 +47,12 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
               .map((e) => e.id!)
               .toList())
         .then((_) {
-      context.read<VoucherCubit>().replaceState({});
+      context.read<VoucherCubit>().currentState().values.forEach((element) {
+        VoucherService.instance
+            .decreaseCount(element)
+            .then((_) => context.read<VoucherCubit>().remove(element));
+      });
+
       OrderService.instance
           .update(Order()
             ..id = Cache.cartId
@@ -85,7 +92,7 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
                     builder: (_, state) {
                       if (state.values.isNotEmpty) {
                         return Text(
-                          "Code: ${state.values.first.code}",
+                          "Code: ${state.values.first.name}",
                           textAlign: TextAlign.center,
                         );
                       }
@@ -113,64 +120,67 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
                 children: [
                   Expanded(
                     child: Center(
-                      child:
-                          BlocBuilder<CartCubit, Map<String, (Product, int)>>(
-                        builder: (_, state) {
-                          _discount = 0;
-                          _sum = 0;
-                          _discountProduct = 0.0;
+                      child: BlocBuilder<VoucherCubit, Map<String, Voucher>>(
+                          builder: (_, vstate) {
+                        return BlocBuilder<CartCubit,
+                            Map<String, (Product, int)>>(
+                          builder: (_, state) {
+                            _discount = 0;
+                            _sum = 0;
+                            _discountProduct = 0.0;
 
-                          for (var element in state.values) {
-                            _discountProduct +=
-                                getActuallyCost(element.$1) * element.$2;
-                            _sum += (element.$1.price ?? 0) * element.$2;
-                          }
+                            for (var element in state.values) {
+                              _discountProduct +=
+                                  getActuallyCost(element.$1) * element.$2;
+                              _sum += (element.$1.price ?? 0) * element.$2;
+                            }
 
-                          if (context
-                              .read<VoucherCubit>()
-                              .currentState()
-                              .values
-                              .isNotEmpty) {
-                            final voucher = context
+                            if (context
                                 .read<VoucherCubit>()
                                 .currentState()
                                 .values
-                                .first;
-                            if (voucher.percent != null ||
-                                voucher.percent! > 0) {
-                              _discount =
-                                  _discountProduct * (voucher.percent! / 100);
-                              if (voucher.maxValue != null) {
+                                .isNotEmpty) {
+                              final voucher = context
+                                  .read<VoucherCubit>()
+                                  .currentState()
+                                  .values
+                                  .first;
+                              if (voucher.percent != null ||
+                                  voucher.percent! > 0) {
                                 _discount =
-                                    _discount.clamp(0, voucher.maxValue!);
+                                    _discountProduct * (voucher.percent! / 100);
+                                if (voucher.maxValue != null) {
+                                  _discount =
+                                      _discount.clamp(0, voucher.maxValue!);
+                                }
+                              } else {
+                                _discount = (voucher.maxValue ?? 0)
+                                    .clamp(0, _discountProduct);
                               }
-                            } else {
-                              _discount = (voucher.maxValue ?? 0)
-                                  .clamp(0, _discountProduct);
                             }
-                          }
-                          if (_discount != 0.0 || _discountProduct != _sum) {
-                            return RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: formatCurrency(_sum),
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      decoration: TextDecoration.lineThrough,
+                            if (_discount != 0.0 || _discountProduct != _sum) {
+                              return RichText(
+                                text: TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: formatCurrency(_sum),
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        decoration: TextDecoration.lineThrough,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text:
-                                        "\n${formatCurrency(_sum - _discount - (_sum - _discountProduct))}",
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                          return Text(formatCurrency(_sum));
-                        },
-                      ),
+                                    TextSpan(
+                                      text:
+                                          "\n${formatCurrency(_sum - _discount - (_sum - _discountProduct))}",
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            return Text(formatCurrency(_sum));
+                          },
+                        );
+                      }),
                     ),
                   ),
                   Expanded(

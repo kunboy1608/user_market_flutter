@@ -17,8 +17,7 @@ class WidgetUtil {
     return showDialog(
       context: context,
       builder: (context) => Dialog(
-        child: FittedBox(
-          // height: 100,
+        child: FittedBox(          
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(defPading),

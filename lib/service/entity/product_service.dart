@@ -5,6 +5,7 @@ import 'package:user_market/service/entity/entity_service.dart';
 import 'package:user_market/service/google/firestore_service.dart';
 import 'package:user_market/service/image_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:user_market/util/cost_util.dart';
 
 class ProductService extends EntityService<Product> {
   static final ProductService _instance = ProductService._();
@@ -98,5 +99,58 @@ class ProductService extends EntityService<Product> {
               }
               return null;
             }));
+  }
+
+  Future<List<Product>?> getBestSellers() async {
+    List<Product> list = await FirestoreService.instance.getFireStore().then(
+        (fs) => fs
+                .collection(collectionName)
+                .limit(5)
+                .orderBy('quantity_sold', descending: true)
+                .get()
+                .then((event) {
+              return event.docs.map((doc) {
+                return Product.fromMap(doc.data())..id = doc.id;
+              }).toList();
+            }));
+
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].imgUrl != null) {
+        list[i].actuallyLink =
+            await ImageService.instance.getActuallyLink(list[i].imgUrl!);
+      }
+    }
+
+    return list.isEmpty ? null : list;
+  }
+
+  Future<List<Product>?> getFlashSale() async {
+    List<Product> list = await FirestoreService.instance.getFireStore().then(
+        (fs) => fs
+                .collection(collectionName)
+                .limit(5)
+                .where('discount_price', isNotEqualTo: null)
+                .orderBy('discount_price')
+                .get()
+                .then((event) {
+              return event.docs.map((doc) {
+                return Product.fromMap(doc.data())..id = doc.id;
+              }).toList();
+            }));
+
+    int i = 0;
+    while (i < list.length) {
+      if (getActuallyCost(list[i]) != list[i].price) {
+        if (list[i].imgUrl != null) {
+          list[i].actuallyLink =
+              await ImageService.instance.getActuallyLink(list[i].imgUrl!);
+        }
+        i++;
+      } else {
+        list.removeAt(i);
+      }
+    }
+
+    return list.isEmpty ? null : list;
   }
 }

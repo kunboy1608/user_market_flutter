@@ -61,7 +61,7 @@ class _BannerWidgetState extends State<BannerWidget> {
               ),
             ),
             Positioned(
-              bottom: 0,
+              bottom: 10,
               right: 0,
               left: 0,
               child: Row(

@@ -2,7 +2,7 @@ import 'package:user_market/entity/entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Voucher extends Entity {
-  String? code;
+  String? name;
   double? percent;
   double? maxValue;
   Timestamp? startDate;
@@ -12,9 +12,12 @@ class Voucher extends Entity {
 
   Voucher();
   Voucher.fromMap(Map<String, dynamic> map) {
-    code = map["code"];
-    percent = map["percent"];
-    maxValue = map["max_value"];
+    name = map["name"];
+    percent =
+        map["percent"] == null ? null : double.parse(map["percent"].toString());
+    maxValue = map["max_value"] == null
+        ? null
+        : double.parse(map["max_value"].toString());
     startDate = map["start_date"];
     endDate = map["end_date"];
     count = map["count"];
@@ -28,7 +31,7 @@ class Voucher extends Entity {
   Map<String, dynamic> toMap() {
     return super.toMap()
       ..addAll({
-        'code': code,
+        'name': name,
         'percent': percent,
         'max_value': maxValue,
         'start_date': startDate,

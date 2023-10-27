@@ -15,13 +15,16 @@ class VoucherService extends EntityService<Voucher> {
 
   @override
   Future<List<Voucher>?> get() {
-    return FirestoreService.instance
-        .getFireStore()
-        .then((fs) => fs.collection(collectionName).get().then((event) {
-              return event.docs.map((doc) {
-                return Voucher.fromMap(doc.data())..id = doc.id;
-              }).toList();
-            }));
+    return FirestoreService.instance.getFireStore().then((fs) => fs
+            .collection(collectionName)
+            .where('is_public', isEqualTo: true)
+            .where('count', isGreaterThan: 0)
+            .get()
+            .then((event) {
+          return event.docs.map((doc) {
+            return Voucher.fromMap(doc.data())..id = doc.id;
+          }).toList();
+        }));
   }
 
   @override
@@ -43,10 +46,16 @@ class VoucherService extends EntityService<Voucher> {
     return FirestoreService.instance
         .getFireStore()
         .then((fs) => fs.collection(collectionName).doc(id).get().then((value) {
-              if (value.data() != null) {
+              if (value.data() != null &&
+                 (value.data()!['count'] ?? 0) > 0) {
                 return Voucher.fromMap(value.data()!)..id = id;
               }
               return null;
             }));
+  }
+
+  Future<void> decreaseCount(Voucher v) async {
+    update(Voucher.fromMap(
+        v.toMap()..addAll({'count': v.count == null ? 0 : v.count! - 1})));
   }
 }

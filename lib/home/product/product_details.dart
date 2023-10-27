@@ -52,7 +52,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       child: widget.pro.actuallyLink != null &&
                               widget.pro.actuallyLink!.isNotEmpty
                           ? SizedBox(
-                              child: FadeInImage(                                
+                              child: FadeInImage(
                                 placeholder:
                                     const AssetImage('assets/img/loading.gif'),
                                 image:
@@ -90,38 +90,41 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),
         ),
       ),
-      bottomNavigationBar: FilledButton(
-        onPressed: () {
-          context.read<CartCubit>().changeQuantity(widget.pro, 1);
-          setState(() {
-            _tag = "${widget.pro.id ?? ""}_cartItem";
-          });
-
-          Map<String, Map<String, int>> map = {};
-
-          final m = Map.of(context.read<CartCubit>().state);
-
-          m.forEach((key, value) {
-            map.addAll({
-              key: {value.$1.price.toString(): value.$2}
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: defPading),
+        child: FilledButton(
+          onPressed: () {
+            context.read<CartCubit>().changeQuantity(widget.pro, 1);
+            setState(() {
+              _tag = "${widget.pro.id ?? ""}_cartItem";
             });
-          });
 
-          Navigator.pop(context);
-          List<String> vouchers = [];
-          if (context.read<VoucherCubit>().currentState().values.isNotEmpty) {
-            vouchers.add(
-                context.read<VoucherCubit>().currentState().values.first.id ??
-                    "");
-          }
+            Map<String, Map<String, int>> map = {};
 
-          OrderService.instance.update(Order()
-            ..id = Cache.cartId
-            ..userId = Cache.userId
-            ..products = map
-            ..vouchers = vouchers);
-        },
-        child: const Text("Add to cart"),
+            final m = Map.of(context.read<CartCubit>().state);
+
+            m.forEach((key, value) {
+              map.addAll({
+                key: {value.$1.price.toString(): value.$2}
+              });
+            });
+
+            Navigator.pop(context);
+            List<String> vouchers = [];
+            if (context.read<VoucherCubit>().currentState().values.isNotEmpty) {
+              vouchers.add(
+                  context.read<VoucherCubit>().currentState().values.first.id ??
+                      "");
+            }
+
+            OrderService.instance.update(Order()
+              ..id = Cache.cartId
+              ..userId = Cache.userId
+              ..products = map
+              ..vouchers = vouchers);
+          },
+          child: const Text("Add to cart"),
+        ),
       ),
     );
   }

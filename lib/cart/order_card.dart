@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:user_market/cart/order_details.dart';
 import 'package:user_market/entity/order.dart';
 import 'package:user_market/service/entity/order_service.dart';
 import 'package:user_market/util/string_utils.dart';
@@ -33,24 +35,33 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        title: Text(
-          "User: ${order.userId}",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => OrderDetails(order: order),
+            ));
+      },
+      child: Card(
+        child: ListTile(
+          title: Text(
+            "User: ${order.userId}",
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          isThreeLine: true,
+          subtitle: Text(
+              "Total: ${formatCurrency(_sum())}\nCreated date: ${order.uploadDate?.toDate().toString() ?? ""}"),
+          trailing: 1 == order.status
+              ? IconButton(
+                  onPressed: () => _cancel(context),
+                  icon: const Icon(Icons.clear_rounded))
+              : 3 == order.status
+                  ? IconButton(
+                      onPressed: _update, icon: const Icon(Icons.check_rounded))
+                  : null,
         ),
-        isThreeLine: true,
-        subtitle: Text(
-            "Total: ${formatCurrency(_sum())}\nCreated date: ${order.uploadDate?.toDate().toString() ?? ""}"),
-        trailing: 1 == order.status
-            ? IconButton(
-                onPressed: () => _cancel(context),
-                icon: const Icon(Icons.clear_rounded))
-            : 3 == order.status
-                ? IconButton(
-                    onPressed: _update, icon: const Icon(Icons.check_rounded))
-                : null,
       ),
     );
   }
