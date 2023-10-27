@@ -35,13 +35,14 @@ class _ProductInOrderState extends State<ProductInOrder> {
           children: <TextSpan>[
             TextSpan(
               text: formatCurrency(_product.price),
-              style: const TextStyle(
-                color: Colors.grey,
+              style: TextStyle(
+                color: Theme.of(context).disabledColor,
                 decoration: TextDecoration.lineThrough,
               ),
             ),
             TextSpan(
               text: "\n${formatCurrency(_product.discountPrice)}",
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],
         ),

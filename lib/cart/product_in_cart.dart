@@ -37,13 +37,14 @@ class _ProductInCartState extends State<ProductInCart> {
           children: <TextSpan>[
             TextSpan(
               text: formatCurrency(widget.product.price),
-              style: const TextStyle(
-                color: Colors.grey,
+              style: TextStyle(
+                color: Theme.of(context).disabledColor,
                 decoration: TextDecoration.lineThrough,
               ),
             ),
             TextSpan(
               text: " ${formatCurrency(widget.product.discountPrice)}",
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],
         ),

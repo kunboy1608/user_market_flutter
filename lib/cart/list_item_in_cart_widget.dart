@@ -23,9 +23,79 @@ class ListItemInCartWidget extends StatefulWidget {
 }
 
 class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
+  final _formKey = GlobalKey<FormState>();
+  final _addressTEC = TextEditingController();
+  final _phoneNumberTEC = TextEditingController();
+  final _nodePhoneNumber = FocusNode();
+
   double _sum = 0.0;
   double _discount = 0.0;
   double _discountProduct = 0.0;
+
+  Future<dynamic> _showInputAdressPhoneNumber(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          height: 300,
+          padding: const EdgeInsets.all(defPading),
+          child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  const Spacer(),
+                  TextFormField(
+                    autofocus: true,
+                    controller: _addressTEC,
+                    onEditingComplete: () => _nodePhoneNumber.requestFocus(),
+                    keyboardType: TextInputType.streetAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your address";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                        label: const Text("Address*"),
+                        suffixIcon: IconButton(
+                            onPressed: () => _addressTEC.text = "",
+                            icon: const Icon(Icons.clear_rounded))),
+                  ),
+                  TextFormField(
+                    focusNode: _nodePhoneNumber,
+                    controller: _phoneNumberTEC,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your phone number";
+                      }
+                      if (value.length < 10) {
+                        return "Phone number leasts 10 letters";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                        label: const Text("Phone number*"),
+                        suffixIcon: IconButton(
+                            onPressed: () => _phoneNumberTEC.text = "",
+                            icon: const Icon(Icons.clear_rounded))),
+                  ),
+                  const SizedBox(height: defPading),
+                  FilledButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          Navigator.pop(context);
+                          _buyAll();
+                        }
+                      },
+                      child: const Text("Submit")),
+                  const Spacer(),
+                ],
+              )),
+        ),
+      ),
+    );
+  }
 
   void _buyAll() {
     Map<String, Map<String, int>> map = {};
@@ -40,6 +110,8 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
         .add(Order()
           ..products = map
           ..status = 1
+          ..phoneNumber = _phoneNumberTEC.text
+          ..address = _addressTEC.text
           ..vouchers = context
               .read<VoucherCubit>()
               .currentState()
@@ -164,14 +236,16 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
                                   children: <TextSpan>[
                                     TextSpan(
                                       text: formatCurrency(_sum),
-                                      style: const TextStyle(
-                                        color: Colors.grey,
+                                      style: TextStyle(
+                                        color: Theme.of(context).disabledColor,
                                         decoration: TextDecoration.lineThrough,
                                       ),
                                     ),
                                     TextSpan(
                                       text:
                                           "\n${formatCurrency(_sum - _discount - (_sum - _discountProduct))}",
+                                      style:
+                                          Theme.of(context).textTheme.bodyLarge,
                                     ),
                                   ],
                                 ),
@@ -187,7 +261,7 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
                       child: FilledButton(
                     onPressed: context.read<CartCubit>().state.isEmpty
                         ? null
-                        : _buyAll,
+                        : () => _showInputAdressPhoneNumber(context),
                     child: const Text("Buy all!"),
                   ))
                 ],
@@ -197,5 +271,13 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _addressTEC.dispose();
+    _phoneNumberTEC.dispose();
+    _nodePhoneNumber.dispose();
+    super.dispose();
   }
 }

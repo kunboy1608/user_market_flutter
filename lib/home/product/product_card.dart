@@ -14,20 +14,21 @@ class ProductCard extends StatelessWidget {
   final Product pro;
   final String additionTag;
 
-  Widget _getPriceWidget() {
+  Widget _getPriceWidget(BuildContext context) {
     if (getActuallyCost(pro) != pro.price) {
       return RichText(
         text: TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: formatCurrency(pro.price),
-              style: const TextStyle(
-                color: Colors.grey,
+              style: TextStyle(
+                color: Theme.of(context).disabledColor,
                 decoration: TextDecoration.lineThrough,
               ),
             ),
             TextSpan(
               text: " ${formatCurrency(pro.discountPrice)}",
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),
@@ -88,7 +89,7 @@ class ProductCard extends StatelessWidget {
                       ),
                       Text("Category: ${pro.categoryId?.toString() ?? ""}",
                           maxLines: 1, overflow: TextOverflow.ellipsis),
-                      _getPriceWidget(),
+                      _getPriceWidget(context),
                       Text("Sold: ${pro.quantitySold ?? 0}",
                           maxLines: 1, overflow: TextOverflow.ellipsis),
                     ],
