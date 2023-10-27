@@ -27,7 +27,7 @@ class Order extends Entity {
     status = map["status"];
 
     phoneNumber = map["phone_number"];
-    address = map["adddress"];
+    address = map["address"];
 
     products = {};
     map["products"]?.forEach((key, value) {
