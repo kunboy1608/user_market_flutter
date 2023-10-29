@@ -16,7 +16,6 @@ import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/search/product_search_delegate.dart';
 import 'package:user_market/service/entity/order_service.dart';
 import 'package:user_market/service/entity/product_service.dart';
-import 'package:user_market/service/google/firestorage_service.dart';
 import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 
@@ -28,10 +27,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // bool _hideCart = false;
   late ScrollController _controller;
-  final _streamProductsController =
-      StreamController<(DocumentChangeType, Product)>();
   final _streamOrdersController =
       StreamController<(DocumentChangeType, Order)>();
 
@@ -45,54 +41,15 @@ class _HomeState extends State<Home> {
     super.initState();
     _controller = ScrollController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Get products
-      ProductService.instance.listenChanges(_streamProductsController);
-      _streamProductsController.stream.listen((event) {
-        _isSortedByCategory = null;
-        if (_holdCurrentState == null) {
-          switch (event.$1) {
-            case DocumentChangeType.added:
-            case DocumentChangeType.modified:
-              context.read<ProductCubit>().addOrUpdateIfExist(event.$2);
-              break;
-            case DocumentChangeType.removed:
-              // Support remove useless img on Firestorage
-              FirestorageService.instance.delete(event.$2.imgUrl ?? "");
-              context.read<ProductCubit>().remove(event.$2);
-              break;
-            default:
-          }
-        } else {
-          if (event.$2.categoryId == _filterCategory) {
-            switch (event.$1) {
-              case DocumentChangeType.added:
-              case DocumentChangeType.modified:
-                context.read<ProductCubit>().addOrUpdateIfExist(event.$2);
-                break;
-              case DocumentChangeType.removed:
-                // Support remove useless img on Firestorage
-                FirestorageService.instance.delete(event.$2.imgUrl ?? "");
-                context.read<ProductCubit>().remove(event.$2);
-                break;
-              default:
-            }
-          }
-          switch (event.$1) {
-            case DocumentChangeType.added:
-            case DocumentChangeType.modified:
-              _holdCurrentState!.addAll({event.$2.id!: event.$2});
-              break;
-            case DocumentChangeType.removed:
-              // Support remove useless img on Firestorage
-              FirestorageService.instance.delete(event.$2.imgUrl ?? "");
-              _holdCurrentState!.remove(event.$2.id!);
-              break;
-            default:
-          }
-        }
-      });
+    _controller.addListener(() {
+      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+        ProductService.instance.lazyLoad().then((value) {
+          context.read<ProductCubit>().addOrUpdateIfExistAll(value);
+        });
+      }
+    });
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       // Get orders
       OrderService.instance.listenChanges(_streamOrdersController);
       _streamOrdersController.stream.listen((event) {
@@ -113,22 +70,16 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
         appBar: AppBar(
-          title: GestureDetector(
-            onTap: () {
-              debugPrint(MediaQuery.of(context).size.width.toString());
-            },
-            child: Row(
-              children: [
-                const Icon(CupertinoIcons.profile_circled),
-                Text(
-                  Cache.userId.substring(0, 15),
-                  overflow: TextOverflow.ellipsis,
-                )
-              ],
-            ),
+          title: Row(
+            children: [
+              const Icon(CupertinoIcons.profile_circled),
+              Text(
+                Cache.userId.substring(0, 15),
+                overflow: TextOverflow.ellipsis,
+              )
+            ],
           ),
           actions: [
             IconButton(
@@ -153,7 +104,6 @@ class _HomeState extends State<Home> {
                             .read<ProductCubit>()
                             .replaceState(_holdCurrentState!);
                       }
-                      // _holdCurrentState!.clear();
                       _holdCurrentState = null;
                       break;
 
@@ -218,6 +168,7 @@ class _HomeState extends State<Home> {
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: defPading / 2),
           child: SingleChildScrollView(
+            controller: _controller,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -252,17 +203,16 @@ class _HomeState extends State<Home> {
                 ),
                 BlocBuilder<ProductCubit, Map<String, Product>>(
                   builder: (context, state) => GridView.builder(
-                    controller: _controller,
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: (MediaQuery.of(context).size.width ~/ 200),
-                            crossAxisSpacing: defPading,
-                            mainAxisSpacing: defPading,
-                            childAspectRatio: 0.9),
-                    itemBuilder: (_, index) => ProductCard(
-                      pro: state.values.elementAt(index),
-                    ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            (MediaQuery.of(context).size.width ~/ 200),
+                        crossAxisSpacing: defPading,
+                        mainAxisSpacing: defPading,
+                        childAspectRatio: 0.9),
+                    itemBuilder: (_, index) =>
+                        ProductCard(pro: state.values.elementAt(index)),
                     itemCount: state.values.length,
                   ),
                 ),

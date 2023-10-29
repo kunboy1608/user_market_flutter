@@ -12,6 +12,8 @@ class ProductService extends EntityService<Product> {
   static ProductService get instance => _instance;
   ProductService._();
 
+  DocumentSnapshot? _lastDocument;
+
   @override
   String collectionName = "products";
 
@@ -152,5 +154,44 @@ class ProductService extends EntityService<Product> {
     }
 
     return list.isEmpty ? null : list;
+  }
+
+  Future<List<Product>> lazyLoad() async {
+    late List<Product> list;
+    if (_lastDocument != null) {
+      list = await FirestoreService.instance.getFireStore().then((fs) => fs
+              .collection(collectionName)
+              .limit(5)
+              .startAfterDocument(_lastDocument!)
+              .get()
+              .then((event) {
+            if (event.docs.isNotEmpty) {
+              _lastDocument = event.docs.last;
+            }
+            return event.docs.map((doc) {
+              return Product.fromMap(doc.data())..id = doc.id;
+            }).toList();
+          }));
+    } else {
+      list = await FirestoreService.instance.getFireStore().then(
+          (fs) => fs.collection(collectionName).limit(5).get().then((event) {
+                if (event.docs.isNotEmpty) {
+                  _lastDocument = event.docs.last;
+                }
+
+                return event.docs.map((doc) {
+                  return Product.fromMap(doc.data())..id = doc.id;
+                }).toList();
+              }));
+    }
+
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].imgUrl != null) {
+        list[i].actuallyLink =
+            await ImageService.instance.getActuallyLink(list[i].imgUrl!);
+      }
+    }
+
+    return list;
   }
 }
