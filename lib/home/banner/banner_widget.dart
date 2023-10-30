@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:user_market/service/entity/banner_service.dart';
+import 'package:user_market/util/const.dart';
 
 class BannerWidget extends StatefulWidget {
   const BannerWidget({super.key});
@@ -21,10 +22,13 @@ class _BannerWidgetState extends State<BannerWidget> {
     List<Widget> imgs = [];
     banners?.forEach((element) {
       if (element.actuallyLink != null && element.actuallyLink!.isNotEmpty) {
-        imgs.add(FadeInImage(
-          fit: BoxFit.cover,
-          placeholder: const AssetImage('assets/img/loading.gif'),
-          image: FileImage(File(element.actuallyLink!)),
+        imgs.add(ClipRRect(
+          borderRadius: BorderRadius.circular(defRadius),
+          child: FadeInImage(
+            fit: BoxFit.cover,
+            placeholder: const AssetImage('assets/img/loading.gif'),
+            image: FileImage(File(element.actuallyLink!)),
+          ),
         ));
       }
     });

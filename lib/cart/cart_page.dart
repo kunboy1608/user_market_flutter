@@ -51,11 +51,4 @@ class _CartPageState extends State<CartPage> {
           ),
         ));
   }
-
-  @override
-  void dispose() {
-    // _streamController.close();
-    debugPrint("Cart Page: dispose");
-    super.dispose();
-  }
 }

@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart' hide Order;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:user_market/auth/login.dart';
+import 'package:user_market/bloc/cart_cubit.dart';
 import 'package:user_market/bloc/order_cubit.dart';
 import 'package:user_market/bloc/product_cubit.dart';
 import 'package:user_market/entity/order.dart';
@@ -16,6 +18,8 @@ import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/search/product_search_delegate.dart';
 import 'package:user_market/service/entity/order_service.dart';
 import 'package:user_market/service/entity/product_service.dart';
+import 'package:user_market/service/google/firebase_service.dart';
+import 'package:user_market/service/google/firestorage_service.dart';
 import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 
@@ -27,9 +31,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late StreamSubscription<QuerySnapshot<Map<String, dynamic>>> _streamOrder;
+
   late ScrollController _controller;
-  final _streamOrdersController =
-      StreamController<(DocumentChangeType, Order)>();
 
   bool? _isSortedByCategory;
   int _filterCategory = 0;
@@ -51,19 +56,22 @@ class _HomeState extends State<Home> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Get orders
-      OrderService.instance.listenChanges(_streamOrdersController);
-      _streamOrdersController.stream.listen((event) {
-        switch (event.$1) {
-          case DocumentChangeType.added:
-          case DocumentChangeType.modified:
-            context.read<OrderCubit>().addOrUpdateIfExist(event.$2);
-            break;
-          case DocumentChangeType.removed:
-            // Support remove useless img on Firestorage
-            context.read<OrderCubit>().remove(event.$2);
-            break;
-          default:
-        }
+      OrderService.instance.getSnapshot().then((value) {
+        _streamOrder = value.listen((event) {
+          for (var element in event.docChanges) {
+            Order p = Order.fromMap(element.doc.data()!)..id = element.doc.id;
+            switch (element.type) {
+              case DocumentChangeType.added:
+              case DocumentChangeType.modified:
+                context.read<OrderCubit>().addOrUpdateIfExist(p);
+                break;
+              case DocumentChangeType.removed:
+                context.read<OrderCubit>().remove(p);
+                break;
+              default:
+            }
+          }
+        });
       });
     });
   }
@@ -71,15 +79,16 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
-          title: Row(
-            children: [
-              const Icon(CupertinoIcons.profile_circled),
-              Text(
-                Cache.userId.substring(0, 15),
-                overflow: TextOverflow.ellipsis,
-              )
-            ],
+          leading: IconButton(
+              onPressed: () {
+                _scaffoldKey.currentState!.openDrawer();
+              },
+              icon: const Icon(CupertinoIcons.profile_circled)),
+          title: Text(
+            Cache.user?.fullName ?? "",
+            overflow: TextOverflow.ellipsis,
           ),
           actions: [
             IconButton(
@@ -221,8 +230,52 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
+        drawer: NavigationDrawer(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+              child: Text(
+                Cache.user?.fullName ?? "",
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            const Divider(),
+            GestureDetector(
+              onTap: () {
+                context.read<CartCubit>().replaceCurrentState({});
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.pushReplacement(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => const Login(),
+                    ));
+              },
+              child: const ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text("Log out"),
+              ),
+            ),
+          ],
+        ),
         bottomNavigationBar: const CartBottom(
           isHidden: false,
         ));
+  }
+
+  @override
+  void dispose() {
+    debugPrint("Home: dispose");
+    _streamOrder.cancel();
+    _controller.dispose();
+    Cache.user = null;
+    Cache.userId = "";
+    Cache.cartId = "";
+
+    FirestorageService.instance.dispose();
+    FirestorageService.instance.dispose();
+    FirebaseService.instance.initialAuth().then((value) {
+      value?.signOut();
+    });
+    super.dispose();
   }
 }

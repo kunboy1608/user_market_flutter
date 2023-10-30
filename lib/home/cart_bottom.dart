@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,27 +22,35 @@ class CartBottom extends StatefulWidget {
 }
 
 class _CartBottomState extends State<CartBottom> {
-  final _streamController = StreamController<Map<String, int>>();
+  late StreamSubscription<DocumentSnapshot<Map<String, dynamic>>> _streamCart;
   final double _height = 60.0;
 
   @override
   void initState() {
-    debugPrint("Cart: initState");
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      OrderService.instance.listenCartChanges(_streamController);
-      _streamController.stream.listen((event) {
-        Map<String, (Product, int)> map = {};
-        event.forEach((key, value) {
-          ProductService.instance.getById(key).then((pro) {
-            if (pro != null) {
-              map.addAll({pro.id!: (pro, value)});
-              context.read<CartCubit>().replaceCurrentState(map);
-            }
+      OrderService.instance.getSnapshotCart().then((value) {
+        _streamCart = value.listen((event) {
+          Map<String, int> products = {};
+
+          // Map<ProductId, Map<price.toString(), quantity>>
+          final map = event.data()!["products"];
+          map?.forEach((key, value) {
+            products.addAll({key: value.values.first});
           });
+
+          Map<String, (Product, int)> m = {};
+          products.forEach((key, value) {
+            ProductService.instance.getById(key).then((pro) {
+              if (pro != null) {
+                m.addAll({pro.id!: (pro, value)});
+                context.read<CartCubit>().replaceCurrentState(m);
+              }
+            });
+          });
+          context.read<CartCubit>().replaceCurrentState(m);
         });
-        context.read<CartCubit>().replaceCurrentState(map);
       });
     });
   }
@@ -111,5 +120,12 @@ class _CartBottomState extends State<CartBottom> {
             );
           });
         }));
+  }
+
+  @override
+  void dispose() {
+    debugPrint("Cart Bottom: dispose");
+    _streamCart.cancel();
+    super.dispose();
   }
 }

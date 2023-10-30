@@ -43,17 +43,13 @@ class OrderService extends EntityService<Order> {
 
   @override
   Future<List<Order>?> get() async {
-    List<Order> list = [];
-    FirestoreService.instance.getFireStore().then((fs) => fs
-            .collection(collectionName)
-            .where('user_id', isEqualTo: Cache.userId)
-            .get()
-            .then((event) {
-          list.addAll(event.docs.map((doc) {
-            return Order.fromMap(doc.data())..id = doc.id;
-          }));
-        }));
-    return list;
+    return FirestoreService.instance.getFireStore().then((fs) => fs
+        .collection(collectionName)
+        .where('user_id', isEqualTo: Cache.userId)
+        .get()
+        .then((event) => event.docs
+            .map((doc) => Order.fromMap(doc.data())..id = doc.id)
+            .toList()));
   }
 
   Future<void> forwardStep(Order e) async {
@@ -91,67 +87,37 @@ class OrderService extends EntityService<Order> {
     return update(e);
   }
 
-  /// Without cart changes
+  /// Without cart
   @override
-  void listenChanges(StreamController<(DocumentChangeType, Order)> controller) {
-    FirestoreService.instance.getFireStore().then((fs) => fs
-            .collection(collectionName)
-            .where('status', isGreaterThan: 0)
-            .where('user_id', isEqualTo: Cache.userId)
-            .snapshots()
-            .listen((event) {
-          for (var element in event.docChanges) {
-            Order p = Order.fromMap(element.doc.data()!)..id = element.doc.id;
-            controller.sink.add((element.type, p));
-          }
-        }));
-  }
-
-  void listenCartChanges(StreamController<Map<String, int>> controller) {
-    FirestoreService.instance
-        .getFireStore()
-        .then((fs) => fs
-                .collection(collectionName)
-                .limit(1)
-                .where('status', isEqualTo: 0)
-                .where('user_id', isEqualTo: Cache.userId)
-                .get()
-                .then((event) {
-              debugPrint("Order Service: ${Cache.userId}");
-              debugPrint("Order Service: ${event.toString()}");
-              debugPrint("Order Service: ${event.docs.toString()}");
-              if (event.docs.isNotEmpty) {
-                Cache.cartId = event.docs.first.id;
-                debugPrint(Cache.cartId);
-                return event.docs.first.id;
-              } else {
-                return add(Order()).then((value) {
-                  Cache.cartId = value.id;
-                  debugPrint(Cache.cartId);
-                  return value.id;
-                });
-              }
-            }))
-        .then((id) {
+  Future<Stream<QuerySnapshot<Map<String, dynamic>>>> getSnapshot() =>
       FirestoreService.instance.getFireStore().then((fs) => fs
-              .collection(collectionName)
-              .doc(id.toString())
-              .snapshots()
-              .listen((event) {
-            if (event.data() != null) {
-              Map<String, int> products = {};
+          .collection(collectionName)
+          .where('status', isGreaterThan: 0)
+          .where('user_id', isEqualTo: Cache.userId)
+          .snapshots());
 
-              // Map<ProductId, Map<price.toString(), quantity>>
-              final map = event.data()!["products"];
-              map?.forEach((key, value) {
-                products.addAll({key: value.values.first});
-              });
-
-              controller.sink.add(products);
-            }
-          }));
-    });
-  }
+  Future<Stream<DocumentSnapshot<Map<String, dynamic>>>>
+      getSnapshotCart() async => FirestoreService.instance
+          .getFireStore()
+          .then((fs) => fs
+                  .collection(collectionName)
+                  .limit(1)
+                  .where('status', isEqualTo: 0)
+                  .where('user_id', isEqualTo: Cache.userId)
+                  .get()
+                  .then((event) {
+                if (event.docs.isNotEmpty) {
+                  Cache.cartId = event.docs.first.id;
+                  return event.docs.first.id;
+                } else {
+                  return add(Order()).then((value) {
+                    Cache.cartId = value.id;
+                    return value.id;
+                  });
+                }
+              }))
+          .then((id) => FirestoreService.instance.getFireStore().then((fs) =>
+              fs.collection(collectionName).doc(id.toString()).snapshots()));
 
   @override
   Future<Order?> getById(String id) {

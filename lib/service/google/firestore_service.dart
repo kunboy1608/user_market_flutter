@@ -32,4 +32,9 @@ class FirestoreService {
     }
     return _firestore!;
   }
+
+  void dispose() {
+    _firestore == null;
+    _instance == null;
+  }
 }

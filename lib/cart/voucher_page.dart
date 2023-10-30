@@ -64,75 +64,78 @@ class _VoucherPageState extends State<VoucherPage> {
           title: const Text("Add vouchers"),
         ),
         body: SingleChildScrollView(
-          child: Column(children: [
-            TextField(
-              controller: _codeTEC,
-              onEditingComplete: _check,
-              decoration: InputDecoration(
-                  border: const OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.all(Radius.circular(defRadius))),
-                  hintText: "Enter you private code",
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.check),
-                    onPressed: _check,
-                  )),
-            ),
-            Container(
-                padding: const EdgeInsets.all(defPading),
-                color: Theme.of(context).colorScheme.background,
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: defPading),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).highlightColor,
-                          borderRadius: BorderRadius.circular(defRadius)),
-                      child: Text(
-                        "Applied voucher",
-                        style: Theme.of(context).textTheme.headlineSmall,
+          child: Padding(
+            padding: const EdgeInsets.all(defPading),
+            child: Column(children: [
+              TextField(
+                controller: _codeTEC,
+                onEditingComplete: _check,
+                decoration: InputDecoration(
+                    border: const OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.all(Radius.circular(defRadius))),
+                    hintText: "Enter you private code",
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.check),
+                      onPressed: _check,
+                    )),
+              ),
+              Container(
+                  padding: const EdgeInsets.all(defPading),
+                  color: Theme.of(context).colorScheme.background,
+                  child: Row(
+                    children: [
+                      const Spacer(),
+                      Container(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: defPading),
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).highlightColor,
+                            borderRadius: BorderRadius.circular(defRadius)),
+                        child: Text(
+                          "Applied voucher",
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
                       ),
-                    ),
-                    const Spacer()
-                  ],
-                )),
-            _appliedVoucherWidget(context),
-            Container(
-                padding: const EdgeInsets.all(defPading),
-                color: Theme.of(context).colorScheme.background,
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: defPading),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).highlightColor,
-                          borderRadius: BorderRadius.circular(defRadius)),
-                      child: Text("Voucher today",
-                          style: Theme.of(context).textTheme.headlineSmall),
-                    ),
-                    const Spacer()
-                  ],
-                )),
-            FutureBuilder(
-              future: VoucherService.instance.get(),
-              builder: (_, snapshot) {
-                if (snapshot.hasData) {
-                  return ListView.separated(
-                      shrinkWrap: true,
-                      itemBuilder: (_, index) =>
-                          VoucherCard(voucher: snapshot.data![index]),
-                      separatorBuilder: (_, index) =>
-                          const SizedBox(height: defPading),
-                      itemCount: snapshot.data!.length);
-                }
-                return Container();
-              },
-            ),
-          ]),
+                      const Spacer()
+                    ],
+                  )),
+              _appliedVoucherWidget(context),
+              Container(
+                  padding: const EdgeInsets.all(defPading),
+                  color: Theme.of(context).colorScheme.background,
+                  child: Row(
+                    children: [
+                      const Spacer(),
+                      Container(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: defPading),
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).highlightColor,
+                            borderRadius: BorderRadius.circular(defRadius)),
+                        child: Text("Voucher today",
+                            style: Theme.of(context).textTheme.headlineSmall),
+                      ),
+                      const Spacer()
+                    ],
+                  )),
+              FutureBuilder(
+                future: VoucherService.instance.get(),
+                builder: (_, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.separated(
+                        shrinkWrap: true,
+                        itemBuilder: (_, index) =>
+                            VoucherCard(voucher: snapshot.data![index]),
+                        separatorBuilder: (_, index) =>
+                            const SizedBox(height: defPading),
+                        itemCount: snapshot.data!.length);
+                  }
+                  return Container();
+                },
+              ),
+            ]),
+          ),
         ),
       );
     });

@@ -45,10 +45,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: Hero(
                   tag: _tag,
                   child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(defRadius),
-                        bottomRight: Radius.circular(defRadius),
-                      ),
+                      borderRadius: BorderRadius.circular(defRadius),
                       child: widget.pro.actuallyLink != null &&
                               widget.pro.actuallyLink!.isNotEmpty
                           ? SizedBox(

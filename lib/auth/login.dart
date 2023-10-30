@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:user_market/home/home.dart';
+import 'package:user_market/service/entity/user_service.dart';
 import 'package:user_market/service/google/firebase_service.dart';
+import 'package:user_market/user/user_infor_editor.dart';
 import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/widget_util.dart';
@@ -67,16 +69,28 @@ class _LoginState extends State<Login> {
     FirebaseService.instance
         .signInWithEmail(_usernameTEC.text, _passwordTEC.text)
         .then((credential) {
-      Navigator.of(context).pop();
-
       if (credential != null) {
         Cache.userId = credential.user!.uid;
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const Home(),
-            ));
+        UserService.instance.get().then((value) {
+          if (value != null && value.isNotEmpty) {
+            Cache.user = value.first;
+          }
+
+          UserService.instance.get().then((value) {
+            Navigator.of(context).pop();
+            if (value != null && value.isNotEmpty) {
+              Cache.user = value.first;
+            }
+
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Home(),
+                ));
+          });
+        });
       } else {
+        Navigator.of(context).pop();
         setState(() {
           _noti = "Invalid user's information";
         });
@@ -148,7 +162,7 @@ class _LoginState extends State<Login> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => const Home(),
+              builder: (context) => const UserInforEditor(redirectToHome: true),
             ));
       } else {
         setState(() {

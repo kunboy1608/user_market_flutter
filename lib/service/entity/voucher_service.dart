@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:user_market/entity/voucher.dart';
 import 'package:user_market/service/entity/entity_service.dart';
 import 'package:user_market/service/google/firestore_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class VoucherService extends EntityService<Voucher> {
   static final VoucherService _instance = VoucherService._();
@@ -16,29 +15,13 @@ class VoucherService extends EntityService<Voucher> {
   @override
   Future<List<Voucher>?> get() {
     return FirestoreService.instance.getFireStore().then((fs) => fs
-            .collection(collectionName)
-            .where('is_public', isEqualTo: true)
-            .where('count', isGreaterThan: 0)
-            .get()
-            .then((event) {
-          return event.docs.map((doc) {
-            return Voucher.fromMap(doc.data())..id = doc.id;
-          }).toList();
-        }));
-  }
-
-  @override
-  void listenChanges(
-      StreamController<(DocumentChangeType, Voucher)> controller) {
-    FirestoreService.instance
-        .getFireStore()
-        .then((fs) => fs.collection(collectionName).snapshots().listen((event) {
-              for (var element in event.docChanges) {
-                Voucher v = Voucher.fromMap(element.doc.data()!)
-                  ..id = element.doc.id;
-                controller.sink.add((element.type, v));
-              }
-            }));
+        .collection(collectionName)
+        .where('is_public', isEqualTo: true)
+        .where('count', isGreaterThan: 0)
+        .get()
+        .then((event) => event.docs
+            .map((doc) => Voucher.fromMap(doc.data())..id = doc.id)
+            .toList()));
   }
 
   @override
@@ -46,8 +29,7 @@ class VoucherService extends EntityService<Voucher> {
     return FirestoreService.instance
         .getFireStore()
         .then((fs) => fs.collection(collectionName).doc(id).get().then((value) {
-              if (value.data() != null &&
-                 (value.data()!['count'] ?? 0) > 0) {
+              if (value.data() != null && (value.data()!['count'] ?? 0) > 0) {
                 return Voucher.fromMap(value.data()!)..id = id;
               }
               return null;

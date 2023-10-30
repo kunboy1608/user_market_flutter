@@ -59,4 +59,9 @@ class FirestorageService {
       debugPrint(e.toString());
     }
   }
+
+  void dispose() {
+    _firebaseStorage = null;
+    _instance = null;
+  }
 }
