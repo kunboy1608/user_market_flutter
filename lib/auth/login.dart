@@ -75,19 +75,11 @@ class _LoginState extends State<Login> {
           if (value != null && value.isNotEmpty) {
             Cache.user = value.first;
           }
-
-          UserService.instance.get().then((value) {
-            Navigator.of(context).pop();
-            if (value != null && value.isNotEmpty) {
-              Cache.user = value.first;
-            }
-
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const Home(),
-                ));
-          });
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Home(),
+              ));
         });
       } else {
         Navigator.of(context).pop();

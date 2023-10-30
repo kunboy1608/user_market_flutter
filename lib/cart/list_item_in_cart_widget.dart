@@ -33,6 +33,8 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
   double _discountProduct = 0.0;
 
   Future<dynamic> _showInputAdressPhoneNumber(BuildContext context) {
+    _addressTEC.text = Cache.user?.address ?? "";
+    _phoneNumberTEC.text = Cache.user?.phoneNumber ?? "";
     return showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -217,11 +219,12 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
                                   .currentState()
                                   .values
                                   .first;
-                              if (voucher.percent != null ||
+                              if (voucher.percent != null &&
                                   voucher.percent! > 0) {
                                 _discount =
                                     _discountProduct * (voucher.percent! / 100);
-                                if (voucher.maxValue != null) {
+                                if (voucher.maxValue != null &&
+                                    voucher.maxValue! > 0.0) {
                                   _discount =
                                       _discount.clamp(0, voucher.maxValue!);
                                 }
@@ -230,6 +233,7 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
                                     .clamp(0, _discountProduct);
                               }
                             }
+                            debugPrint("$_discount $_discountProduct $_sum");
                             if (_discount != 0.0 || _discountProduct != _sum) {
                               return RichText(
                                 text: TextSpan(
