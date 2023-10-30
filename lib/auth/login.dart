@@ -6,6 +6,7 @@ import 'package:user_market/service/google/firebase_service.dart';
 import 'package:user_market/user/user_infor_editor.dart';
 import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
+import 'package:user_market/util/spm.dart';
 import 'package:user_market/util/widget_util.dart';
 
 class Login extends StatefulWidget {
@@ -67,14 +68,17 @@ class _LoginState extends State<Login> {
     WidgetUtil.showLoadingDialog(context);
 
     FirebaseService.instance
-        .signInWithEmail(_usernameTEC.text, _passwordTEC.text)
+        .signInWithEmail(_usernameTEC.text.trim(), _passwordTEC.text)
         .then((credential) {
       if (credential != null) {
         Cache.userId = credential.user!.uid;
+        SPM.set(SPK.username, _usernameTEC.text.trim());
+        SPM.set(SPK.password, _passwordTEC.text);
         UserService.instance.get().then((value) {
           if (value != null && value.isNotEmpty) {
             Cache.user = value.first;
           }
+          Navigator.of(context).popUntil((route) => route.isFirst);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -145,12 +149,15 @@ class _LoginState extends State<Login> {
     WidgetUtil.showLoadingDialog(context);
 
     FirebaseService.instance
-        .createUser(_emailTEC.text, _newPassTEC.text)
+        .createUser(_emailTEC.text.trim(), _newPassTEC.text)
         .then((credential) {
       Navigator.of(context).pop();
 
       if (credential != null) {
         Cache.userId = credential.user!.uid;
+        SPM.set(SPK.username, _emailTEC.text.trim());
+        SPM.set(SPK.password, _newPassTEC.text);
+        Navigator.of(context).popUntil((route) => route.isFirst);
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(

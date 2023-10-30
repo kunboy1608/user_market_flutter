@@ -20,6 +20,7 @@ dependencies:
   google_sign_in: ^6.1.5  
   intl: ^0.18.1
   path_provider: ^2.1.1
+  shared_preferences: ^2.2.2
   synchronized: ^3.1.0
   uuid: ^4.1.0
 dev_dependencies:

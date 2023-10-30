@@ -20,8 +20,10 @@ import 'package:user_market/service/entity/order_service.dart';
 import 'package:user_market/service/entity/product_service.dart';
 import 'package:user_market/service/google/firebase_service.dart';
 import 'package:user_market/service/google/firestorage_service.dart';
+import 'package:user_market/user/user_infor_editor.dart';
 import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
+import 'package:user_market/util/spm.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -243,7 +245,21 @@ class _HomeState extends State<Home> {
             GestureDetector(
               onTap: () {
                 context.read<CartCubit>().replaceCurrentState({});
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => const UserInforEditor(),
+                    ));
+              },
+              child: const ListTile(
+                leading: Icon(CupertinoIcons.profile_circled),
+                title: Text("Edit information"),
+              ),
+            ),
+            const SizedBox(height: defPading),
+            GestureDetector(
+              onTap: () {
+                context.read<CartCubit>().replaceCurrentState({});
                 Navigator.pushReplacement(
                     context,
                     CupertinoPageRoute(
@@ -270,7 +286,7 @@ class _HomeState extends State<Home> {
     Cache.user = null;
     Cache.userId = "";
     Cache.cartId = "";
-
+    SPM.clearAllReference();
     FirestorageService.instance.dispose();
     FirestorageService.instance.dispose();
     FirebaseService.instance.initialAuth().then((value) {

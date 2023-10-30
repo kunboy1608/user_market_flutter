@@ -23,6 +23,14 @@ class _UserInforEditorState extends State<UserInforEditor> {
   final FocusNode _nodeAddress = FocusNode();
   final FocusNode _nodePhoneNumber = FocusNode();
 
+  @override
+  void initState() {
+    super.initState();
+    _fullNameTEC.text = Cache.user?.fullName ?? "";
+    _addressTEC.text = Cache.user?.address ?? "";
+    _phoneNumberTEC.text = Cache.user?.phoneNumber ?? "";
+  }
+
   void _save() {
     if (!_formKey.currentState!.validate()) {
       return;
