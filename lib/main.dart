@@ -24,6 +24,7 @@ void main() async {
     final userCredential =
         await FirebaseService.instance.signInWithEmail(username, password);
     if (userCredential != null) {
+      Cache.userCredential = userCredential;
       isAutoLoginSuccess = true;
       Cache.userId = userCredential.user?.uid ?? "";
       final u = await UserService.instance.get();

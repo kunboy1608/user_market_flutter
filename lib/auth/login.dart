@@ -71,6 +71,7 @@ class _LoginState extends State<Login> {
         .signInWithEmail(_usernameTEC.text.trim(), _passwordTEC.text)
         .then((credential) {
       if (credential != null) {
+        Cache.userCredential = credential;
         Cache.userId = credential.user!.uid;
         SPM.set(SPK.username, _usernameTEC.text.trim());
         SPM.set(SPK.password, _passwordTEC.text);
@@ -154,6 +155,7 @@ class _LoginState extends State<Login> {
       Navigator.of(context).pop();
 
       if (credential != null) {
+        Cache.userCredential = credential;
         Cache.userId = credential.user!.uid;
         SPM.set(SPK.username, _emailTEC.text.trim());
         SPM.set(SPK.password, _newPassTEC.text);
