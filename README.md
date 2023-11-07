@@ -38,7 +38,7 @@ The situation is: A fruit shop has many loyal customers who prefer home delivery
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Screenshoot
+## Screenshots
 
 ![](https://github.com/kunboy1608/user_market_flutter/blob/master/resource_readme/screenshot.gif)
 
