@@ -40,7 +40,8 @@ The situation is: A fruit shop has many loyal customers who prefer home delivery
 
 ## Screenshoot
 
-<img src="images/open-api-3-user.png" alt="open-api-3-user">
+![](https://github.com/kunboy1608/user_market_flutter/resource_readme/screenshot.gif)
+
 
 <!-- Installation -->
 ## Installation
