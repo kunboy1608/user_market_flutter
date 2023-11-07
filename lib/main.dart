@@ -66,11 +66,13 @@ class MainApp extends StatelessWidget {
     ]);
     return MaterialApp(
       theme: ThemeData(
+          fontFamily: 'Poppins',
           colorScheme: ColorScheme.fromSeed(
               brightness: Brightness.light,
               seedColor: const Color.fromARGB(255, 119, 139, 162)),
           useMaterial3: true),
       darkTheme: ThemeData(
+          fontFamily: 'Poppins',
           colorScheme: ColorScheme.fromSeed(
               brightness: Brightness.dark,
               seedColor: const Color.fromARGB(255, 119, 139, 162)),

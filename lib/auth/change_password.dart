@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:user_market/service/google/firebase_service.dart';
@@ -95,9 +94,10 @@ class _ChangePasswordState extends State<ChangePassword> {
                   obscureText: true,
                   keyboardType: TextInputType.visiblePassword,
                   validator: (value) {
-                    if (value == null) {
+                    if (value == null || value.isEmpty) {
                       return "Please enter old pass";
                     }
+                    return null;
                   },
                   onEditingComplete: () => _nodeNew.requestFocus(),
                 ),

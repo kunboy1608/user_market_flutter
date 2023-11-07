@@ -189,15 +189,16 @@ class _HomeState extends State<Home> {
                     child: SizedBox(
                         height: MediaQuery.of(context).size.width * 9 / 16,
                         child: const BannerWidget())),
-                const SizedBox(height: defPading),
+                const SizedBox(height: defPading),                  
                 Text(
                   "Flash sale",
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
+                const SizedBox(height: defPading),
                 ClipRRect(
                     borderRadius: BorderRadius.circular(defRadius),
-                    child:
-                        const SizedBox(height: 210, child: FlashSaleWidget())),
+                    child: const SizedBox(
+                        height: 210, child: FlashSaleWidget())),
                 const SizedBox(height: defPading),
                 Text(
                   "Best sellers",

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:user_market/entity/product.dart';
+import 'package:user_market/home/product/product_card.dart';
 import 'package:user_market/util/const.dart';
 
 class WidgetUtil {
@@ -17,7 +20,7 @@ class WidgetUtil {
     return showDialog(
       context: context,
       builder: (context) => Dialog(
-        child: FittedBox(          
+        child: FittedBox(
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(defPading),
@@ -49,6 +52,19 @@ class WidgetUtil {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  static Skeletonizer skeletonProductCard() {
+    return Skeletonizer(
+      enabled: true,
+      child: ProductCard(
+        pro: Product()
+          ..price = 10000
+          ..name = "HoangDP's product"
+          ..provider = "HoangDP"
+          ..quantitySold = 100,
       ),
     );
   }

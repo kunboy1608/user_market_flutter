@@ -102,10 +102,10 @@ class ProductService extends EntityService<Product> {
   }
 
   Future<List<Product>?> getFlashSale() async {
+    await Future.delayed(const Duration(seconds: 5));
     List<Product> list = await FirestoreService.instance.getFireStore().then(
         (fs) => fs
-                .collection(collectionName)
-                .limit(5)
+                .collection(collectionName)                
                 .where('discount_price', isNotEqualTo: null)
                 .orderBy('discount_price')
                 .get()

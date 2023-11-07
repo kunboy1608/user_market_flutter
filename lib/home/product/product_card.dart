@@ -59,8 +59,8 @@ class ProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Hero(
-                  tag: "${pro.id ?? ""}$additionTag",
-                  child: SizedBox(
+                    tag: "${pro.id ?? ""}$additionTag",
+                    child: SizedBox(
                       width: constraints.maxWidth,
                       height: constraints.maxHeight * 0.5,
                       child: pro.actuallyLink != null &&
@@ -71,11 +71,11 @@ class ProductCard extends StatelessWidget {
                                   const AssetImage('assets/img/loading.gif'),
                               image: FileImage(File(pro.actuallyLink!)),
                             )
-                          : Icon(
-                              Icons.add_rounded,
-                              size: constraints.maxHeight * 0.5,
-                            )),
-                ),
+                          : Image.asset(
+                              "assets/img/background_login.png",
+                              fit: BoxFit.cover,
+                            ),
+                    )),
                 Padding(
                   padding: const EdgeInsets.all(defPading),
                   child: Column(
