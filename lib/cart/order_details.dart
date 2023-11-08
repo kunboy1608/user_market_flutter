@@ -19,7 +19,7 @@ class _OrderEditorState extends State<OrderDetails> {
 
     widget.order.products?.forEach(
       (key, value) {
-        sum += double.parse(value.keys.first);
+        sum += double.parse(value.keys.first) * value.values.first;
       },
     );
 
@@ -64,8 +64,10 @@ class _OrderEditorState extends State<OrderDetails> {
         itemBuilder: (context, index) {
           return ProductInOrder(
             productId: widget.order.products!.keys.elementAt(index),
-            quantity: widget.order.products!.values.first.values.first,
-            price: double.parse(widget.order.products!.values.first.keys.first),
+            quantity:
+                widget.order.products!.values.elementAt(index).values.first,
+            price: double.parse(
+                widget.order.products!.values.elementAt(index).keys.first),
           );
         },
       ),
