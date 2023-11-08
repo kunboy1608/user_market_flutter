@@ -13,15 +13,27 @@ class VoucherService extends EntityService<Voucher> {
   String collectionName = "vouchers";
 
   @override
-  Future<List<Voucher>?> get() {
+  Future<List<Voucher>?> get() async {
+    final now = DateTime.now();
     return FirestoreService.instance.getFireStore().then((fs) => fs
         .collection(collectionName)
         .where('is_public', isEqualTo: true)
         .where('count', isGreaterThan: 0)
         .get()
         .then((event) => event.docs
-            .map((doc) => Voucher.fromMap(doc.data())..id = doc.id)
-            .toList()));
+                .map((doc) => Voucher.fromMap(doc.data())..id = doc.id)
+                .where((v) {
+              if (v.startDate == null) {
+                if (v.endDate != null && v.endDate!.toDate().isAfter(now)) {
+                  return true;
+                }
+              } else if (v.startDate!.toDate().isBefore(now)) {
+                if (v.endDate == null || v.endDate!.toDate().isAfter(now)) {
+                  return true;
+                }
+              }
+              return false;
+            }).toList()));
   }
 
   @override
