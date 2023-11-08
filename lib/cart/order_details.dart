@@ -25,7 +25,8 @@ class _OrderEditorState extends State<OrderDetails> {
 
     if (widget.order.vouchers != null && widget.order.vouchers!.isNotEmpty) {
       return FutureBuilder(
-          future: VoucherService.instance.getById(widget.order.vouchers!.first),
+          future: VoucherService.instance
+              .getPrivateVoucherById(widget.order.vouchers!.first),
           builder: (context, snapshot) {
             final voucher = snapshot.data;
             if (voucher != null) {
@@ -42,6 +43,23 @@ class _OrderEditorState extends State<OrderDetails> {
               isThreeLine: true,
               subtitle: Text(
                   "Subtotal: ${formatCurrency(sum)}\nDiscount: ${formatCurrency(discount)} \nAmount: ${formatCurrency(sum - discount)}"),
+              trailing: widget.order.vouchers == null ||
+                      widget.order.vouchers!.isEmpty
+                  ? null
+                  : FutureBuilder(
+                      future: VoucherService.instance
+                          .getById(widget.order.vouchers!.first),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Text(
+                              "${snapshot.data!.name}\n${snapshot.data!.percent ?? ""}\nMax:${formatCurrency(snapshot.data!.maxValue)}");
+                        }
+                        return const SizedBox(
+                          height: 1,
+                          width: 1,
+                        );
+                      },
+                    ),
             );
           });
     }
@@ -71,7 +89,17 @@ class _OrderEditorState extends State<OrderDetails> {
           );
         },
       ),
-      bottomNavigationBar: _summaryWidget(context),
+      bottomNavigationBar: SizedBox(
+          height: 150,
+          child: Column(
+            children: [
+              ListTile(
+                subtitle: Text(
+                    "Address: ${widget.order.address}\nPhone number: ${widget.order.phoneNumber}"),
+              ),
+              _summaryWidget(context),
+            ],
+          )),
     );
   }
 }

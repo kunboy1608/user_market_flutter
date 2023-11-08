@@ -107,7 +107,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                     label: const Text("New password"),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(defRadius)),
-                    prefixIcon: const Icon(CupertinoIcons.location_solid),
+                    prefixIcon: const Icon(CupertinoIcons.lock_fill),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.clear_rounded),
                       onPressed: () => _newTEC.text = "",
@@ -126,7 +126,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                     label: const Text("Confirm password"),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(defRadius)),
-                    prefixIcon: const Icon(CupertinoIcons.phone_fill),
+                    prefixIcon: const Icon(CupertinoIcons.lock_fill),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.clear_rounded),
                       onPressed: () => _conTEC.text = "",

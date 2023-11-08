@@ -16,7 +16,12 @@ class VoucherCard extends StatelessWidget {
       onTap: () {
         context.read<VoucherCubit>().replaceState({});
         context.read<VoucherCubit>().addOrUpdateIfExist(voucher);
-        Navigator.pop(context);
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Success"),
+          ),
+        );
       },
       child: Card(
         child: ListTile(

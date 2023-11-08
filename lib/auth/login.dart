@@ -60,6 +60,10 @@ class _LoginState extends State<Login> {
   }
 
   void _login() {
+    setState(() {
+      _noti = "";
+    });
+
     _usernameTEC.text = _usernameTEC.text.trim();
     if (!_formKey.currentState!.validate()) {
       return;
@@ -143,6 +147,10 @@ class _LoginState extends State<Login> {
   }
 
   void _signUp() {
+    setState(() {
+      _notiSignUp = "";
+    });
+
     if (!_formSignUpKey.currentState!.validate()) {
       return;
     }
@@ -248,10 +256,9 @@ class _LoginState extends State<Login> {
               validator: (value) => _checkPassword(value),
               onEditingComplete: _login,
             ),
+            const SizedBox(height: defPading),
             _noti.isEmpty
-                ? const SizedBox(
-                    height: defPading,
-                  )
+                ? const SizedBox(height: defPading)
                 : Text(
                     _noti,
                     style:
@@ -352,10 +359,9 @@ class _LoginState extends State<Login> {
               },
               onEditingComplete: _signUp,
             ),
+            const SizedBox(height: defPading),
             _notiSignUp.isEmpty
-                ? const SizedBox(
-                    height: defPading,
-                  )
+                ? const SizedBox(height: defPading)
                 : Text(
                     _notiSignUp,
                     style:

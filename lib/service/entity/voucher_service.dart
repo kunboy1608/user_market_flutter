@@ -41,6 +41,17 @@ class VoucherService extends EntityService<Voucher> {
     return FirestoreService.instance
         .getFireStore()
         .then((fs) => fs.collection(collectionName).doc(id).get().then((value) {
+              if (value.data() != null) {
+                return Voucher.fromMap(value.data()!)..id = id;
+              }
+              return null;
+            }));
+  }
+
+  Future<Voucher?> getPrivateVoucherById(String id) {
+    return FirestoreService.instance
+        .getFireStore()
+        .then((fs) => fs.collection(collectionName).doc(id).get().then((value) {
               if (value.data() != null && (value.data()!['count'] ?? 0) > 0) {
                 return Voucher.fromMap(value.data()!)..id = id;
               }

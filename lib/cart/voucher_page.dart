@@ -33,8 +33,15 @@ class _VoucherPageState extends State<VoucherPage> {
     if (_codeTEC.text.isNotEmpty) {
       VoucherService.instance.getById(_codeTEC.text).then((voucher) {
         if (voucher != null) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Success"),
+            ),
+          );
           setState(() {
-            context.read<VoucherCubit>().replaceState({voucher.id!: voucher});
+            context.read<VoucherCubit>().replaceState({});
+            context.read<VoucherCubit>().addOrUpdateIfExist(voucher);
           });
         } else {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
