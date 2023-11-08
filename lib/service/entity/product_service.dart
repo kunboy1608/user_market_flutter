@@ -46,6 +46,29 @@ class ProductService extends EntityService<Product> {
     return list;
   }
 
+  Future<List<Product>?> searchByName(String key) async {
+    List<Product> list = await FirestoreService.instance.getFireStore().then(
+        (fs) => fs
+            .collection(collectionName)
+            .where("name",
+                whereIn: [key, key.toLowerCase(), key.toUpperCase()])
+            .get()
+            .then((event) {
+              return event.docs.map((doc) {
+                return Product.fromMap(doc.data())..id = doc.id;
+              }).toList();
+            }));
+
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].imgUrl != null) {
+        list[i].actuallyLink =
+            await ImageService.instance.getActuallyLink(list[i].imgUrl!);
+      }
+    }
+
+    return list;
+  }
+
   @override
   Future<void> update(Product e) {
     return FirestoreService.instance.getFireStore().then((fs) {
@@ -81,15 +104,15 @@ class ProductService extends EntityService<Product> {
   Future<List<Product>?> getBestSellers() async {
     List<Product> list = await FirestoreService.instance.getFireStore().then(
         (fs) => fs
-                .collection(collectionName)
-                .limit(5)
-                .orderBy('quantity_sold', descending: true)
-                .get()
-                .then((event) {
-              return event.docs.map((doc) {
-                return Product.fromMap(doc.data())..id = doc.id;
-              }).toList();
-            }));
+            .collection(collectionName)
+            .limit(5)
+            .orderBy('quantity_sold', descending: true)
+            .get()
+            .then((event) => event.docs
+                .map((doc) => Product.fromMap(doc.data())..id = doc.id)
+                .where((element) =>
+                    element.quantitySold != null && element.quantitySold! > 0)
+                .toList()));
 
     for (int i = 0; i < list.length; i++) {
       if (list[i].imgUrl != null) {
@@ -105,7 +128,7 @@ class ProductService extends EntityService<Product> {
     await Future.delayed(const Duration(seconds: 5));
     List<Product> list = await FirestoreService.instance.getFireStore().then(
         (fs) => fs
-                .collection(collectionName)                
+                .collection(collectionName)
                 .where('discount_price', isNotEqualTo: null)
                 .orderBy('discount_price')
                 .get()

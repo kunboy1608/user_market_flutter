@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_market/bloc/product_cubit.dart';
-import 'package:user_market/entity/product.dart';
 import 'package:user_market/home/product/product_card.dart';
+import 'package:user_market/service/entity/product_service.dart';
 import 'package:user_market/util/const.dart';
 
 class ProductSearchDelegate extends SearchDelegate<String?> {
@@ -26,32 +26,35 @@ class ProductSearchDelegate extends SearchDelegate<String?> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return BlocBuilder<ProductCubit, Map<String, Product>>(
-        builder: (context, state) {
-      final currentValues = context.read<ProductCubit>().currentState().values;
-      List<Product> listResult = [];
+    return FutureBuilder(
+        future: ProductService.instance.searchByName(query),
+        builder: (ctx, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                ctx.read<ProductCubit>().addOrUpdateIfExistAll(snapshot.data!);
+                return GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount:
+                          (MediaQuery.of(context).size.width ~/ 200),
+                      crossAxisSpacing: defPading,
+                      mainAxisSpacing: defPading,
+                      childAspectRatio: 0.9),
+                  itemBuilder: (_, index) => ProductCard(
+                    pro: snapshot.data!.elementAt(index),
+                  ),
+                  itemCount: snapshot.data?.length ?? 0,
+                );
+              } else {
+                return const Center(child: Text("Not found"));
+              }
 
-      for (final element in currentValues) {
-        if (element.name != null &&
-            element.name!
-                .trim()
-                .toLowerCase()
-                .contains(query.trim().toLowerCase())) {
-          listResult.add(element);
-        }
-      }
-      return GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: defPading,
-            mainAxisSpacing: defPading,
-            childAspectRatio: 0.9),
-        itemBuilder: (_, index) => ProductCard(
-          pro: listResult.elementAt(index),
-        ),
-        itemCount: listResult.length,
-      );
-    });
+            default:
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+          }
+        });
   }
 
   @override
