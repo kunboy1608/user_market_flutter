@@ -33,7 +33,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("App bar"),
+        title: Text("${widget.pro.name} - Product details"),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -82,7 +82,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   textAlign: TextAlign.left,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
-              Text(widget.pro.description ?? ""),
+              Text("More information: \n${widget.pro.description ?? ""} "),
             ],
           ),
         ),

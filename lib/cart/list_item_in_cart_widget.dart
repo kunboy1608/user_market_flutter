@@ -58,11 +58,13 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
                       return null;
                     },
                     decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
                         label: const Text("Address*"),
                         suffixIcon: IconButton(
                             onPressed: () => _addressTEC.text = "",
                             icon: const Icon(Icons.clear_rounded))),
                   ),
+                  const SizedBox(height: defPading * 2),
                   TextFormField(
                     focusNode: _nodePhoneNumber,
                     controller: _phoneNumberTEC,
@@ -77,6 +79,7 @@ class _ListItemInCartWidgetState extends State<ListItemInCartWidget> {
                       return null;
                     },
                     decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
                         label: const Text("Phone number*"),
                         suffixIcon: IconButton(
                             onPressed: () => _phoneNumberTEC.text = "",

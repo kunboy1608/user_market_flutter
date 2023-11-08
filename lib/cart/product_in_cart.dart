@@ -11,6 +11,7 @@ import 'package:user_market/service/entity/order_service.dart';
 import 'package:user_market/util/cache.dart';
 import 'package:user_market/util/const.dart';
 import 'package:user_market/util/string_utils.dart';
+import 'package:user_market/util/widget_util.dart';
 
 class ProductInCart extends StatefulWidget {
   const ProductInCart(
@@ -23,11 +24,11 @@ class ProductInCart extends StatefulWidget {
 }
 
 class _ProductInCartState extends State<ProductInCart> {
-
   Widget _getPriceWidget() {
     final now = Timestamp.now();
     if (widget.product.discountPrice != null &&
-        (widget.product.startDiscountDate != null || widget.product.endDiscountDate != null) &&
+        (widget.product.startDiscountDate != null ||
+            widget.product.endDiscountDate != null) &&
         (widget.product.startDiscountDate == null ||
             now.compareTo(widget.product.startDiscountDate!) > 0) &&
         (widget.product.endDiscountDate == null ||
@@ -53,7 +54,7 @@ class _ProductInCartState extends State<ProductInCart> {
     return Text("${formatCurrency(widget.product.price)} ",
         maxLines: 1, overflow: TextOverflow.ellipsis);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -110,19 +111,34 @@ class _ProductInCartState extends State<ProductInCart> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          context.read<CartCubit>().decrease(widget.product);
-                          Map<String, Map<String, int>> map = {};
-                          context.read<CartCubit>().state.forEach((key, value) {
-                            map.addAll({
-                              key: {value.$1.price.toString(): value.$2}
+                          if (widget.quantity == 1) {
+                            WidgetUtil.showYesNoDialog(
+                                    context, "Are sure remove this product?")
+                                .then((confirm) {
+                              if (confirm != null && confirm) {
+                                context
+                                    .read<CartCubit>()
+                                    .decrease(widget.product);
+                              }
                             });
-                          });
+                          } else {
+                            context.read<CartCubit>().decrease(widget.product);
+                            Map<String, Map<String, int>> map = {};
+                            context
+                                .read<CartCubit>()
+                                .state
+                                .forEach((key, value) {
+                              map.addAll({
+                                key: {value.$1.price.toString(): value.$2}
+                              });
+                            });
 
-                          OrderService.instance.update(Order()
-                            ..id = Cache.cartId
-                            ..products = map
-                            ..status = 0
-                            ..vouchers = []);
+                            OrderService.instance.update(Order()
+                              ..id = Cache.cartId
+                              ..products = map
+                              ..status = 0
+                              ..vouchers = []);
+                          }
                         },
                         child: const Icon(Icons.remove),
                       ),
